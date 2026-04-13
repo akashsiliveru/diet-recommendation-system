@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import numpy as np
 import pickle
@@ -210,5 +209,5 @@ if generate:
 
 else:
     st.info("Fill your details and click Generate Plan 🚀")
-```
+
 
