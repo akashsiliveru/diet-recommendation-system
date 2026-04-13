@@ -29,10 +29,10 @@ if model is None:
     st.error("Model failed to load")
     st.stop()
 
-# ---------- BACKGROUND IMAGE ----------
-def get_base64_image(image_path):
+# ---------- BACKGROUND ----------
+def get_base64_image(path):
     try:
-        with open(image_path, "rb") as f:
+        with open(path, "rb") as f:
             return base64.b64encode(f.read()).decode()
     except:
         return None
@@ -42,6 +42,8 @@ bg_image = get_base64_image(BG_PATH)
 # ---------- CSS ----------
 st.markdown(f"""
 <style>
+
+/* BACKGROUND */
 .stApp {{
     background-image: url("data:image/jpg;base64,{bg_image if bg_image else ''}");
     background-size: cover;
@@ -49,6 +51,7 @@ st.markdown(f"""
     background-attachment: fixed;
 }}
 
+/* OVERLAY (lighter so bg visible) */
 .stApp::before {{
     content: "";
     position: fixed;
@@ -56,23 +59,26 @@ st.markdown(f"""
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(5px);
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
     z-index: -1;
 }}
 
+/* TEXT */
 h1, h2, h3, h4, h5, h6, p, label {{
     color: white !important;
 }}
 
+/* CARD */
 .card {{
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.08);
     backdrop-filter: blur(12px);
     padding: 20px;
     border-radius: 20px;
     margin-bottom: 20px;
 }}
 
+/* RADIO FIX */
 div[role="radiogroup"] {{
     gap: 10px !important;
 }}
@@ -86,25 +92,21 @@ div.row-widget.stRadio > div {{
     margin-bottom: -10px;
 }}
 
+/* BUTTON STYLE */
 .stButton > button {{
     background: linear-gradient(135deg, #ff7e00, #ff3c00);
     color: white;
     border-radius: 12px;
-    padding: 12px;
+    padding: 10px 20px;
     font-weight: bold;
     border: none;
-    transition: 0.3s;
+    width: 250px;
 }}
 
 .stButton > button:hover {{
     transform: scale(1.05);
-    background: linear-gradient(135deg, #ff8c1a, #ff4d1a);
 }}
 
-div.stButton {{
-    display: flex;
-    justify-content: center;
-}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -112,16 +114,15 @@ div.stButton {{
 if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
-# ---------- PREMIUM HEADER ----------
+# ---------- HEADER ----------
 st.markdown("""
 <div style="
 text-align:center;
 padding:20px;
 margin-bottom:20px;
-background: rgba(255,255,255,0.05);
+background: rgba(0,0,0,0.3);
 border-radius:20px;
-backdrop-filter: blur(10px);
-box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+backdrop-filter: blur(12px);
 ">
 <h1 style="
 font-size:48px;
@@ -133,13 +134,13 @@ text-shadow: 0 0 20px rgba(255,120,0,0.6);
 ">
 🥗 Smart Diet AI
 </h1>
-<p style="color:#ddd;">
+<p style="color:#ccc;">
 AI-powered personalized nutrition system
 </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- INPUT SCREEN ----------
+# ---------- INPUT ----------
 if not st.session_state.submitted:
 
     st.markdown("### 👤 Enter Your Details")
@@ -165,7 +166,12 @@ if not st.session_state.submitted:
     sugar = st.number_input("Sugar Level", min_value=50.0, max_value=300.0)
     cholesterol = st.number_input("Cholesterol", min_value=100.0, max_value=400.0)
 
-    if st.button("🚀 Generate Plan", use_container_width=True):
+    # 👉 CENTER BUTTON
+    c1, c2, c3 = st.columns([1,2,1])
+    with c2:
+        generate = st.button("🚀 Generate Plan")
+
+    if generate:
 
         if not all([age, height, weight, sugar, cholesterol]):
             st.warning("⚠️ Please fill all fields")
@@ -185,7 +191,7 @@ if not st.session_state.submitted:
 
         st.rerun()
 
-# ---------- OUTPUT SCREEN ----------
+# ---------- OUTPUT ----------
 if st.session_state.submitted:
 
     data = st.session_state.data
@@ -229,29 +235,13 @@ if st.session_state.submitted:
     result = diet_info.get(prediction)
     diet_name = result["name"]
 
-    # STATUS
-    if bmi < 18.5:
-        status = "Underweight"
-        color = "#3498db"
-    elif bmi < 25:
-        status = "Normal"
-        color = "#2ecc71"
-    elif bmi < 30:
-        status = "Overweight"
-        color = "#f39c12"
-    else:
-        status = "Obese"
-        color = "#e74c3c"
+    st.markdown(f"<h2 style='text-align:center;color:#ff7e00;'>🥗 {diet_name}</h2>", unsafe_allow_html=True)
 
-    st.markdown(f"<h2 style='text-align:center;color:{color};'>{status}</h2>", unsafe_allow_html=True)
-
-    # METRICS
     c1, c2, c3 = st.columns(3)
     c1.metric("BMI", f"{bmi:.2f}")
     c2.metric("Sugar", f"{sugar}")
     c3.metric("Cholesterol", f"{cholesterol}")
 
-    # GAUGE
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=bmi,
@@ -268,24 +258,6 @@ if st.session_state.submitted:
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-    # RESULT CARD
-    st.markdown(f"""
-    <div class="card">
-        <h2 style="text-align:center;color:{result['color']}">🥗 {diet_name}</h2>
-        <p style="text-align:center;">Personalized diet recommendation</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # INSIGHTS
-    st.markdown("### 🧠 Smart Insights")
-    if bmi > 30:
-        st.warning("High BMI detected. Focus on weight loss.")
-    if sugar > 140:
-        st.warning("High sugar level. Reduce sweets.")
-    if cholesterol > 200:
-        st.warning("High cholesterol. Avoid fried foods.")
-
-    # MEALS
     st.markdown("### 🍽 Daily Plan")
     for meal, food in zip(["Breakfast", "Lunch", "Dinner"], diet_plans[diet_name]):
         st.markdown(f"""
@@ -295,19 +267,6 @@ if st.session_state.submitted:
         </div>
         """, unsafe_allow_html=True)
 
-    # CHART
-    st.markdown("### 📊 Calories Distribution")
-    chart_data = pd.DataFrame({
-        "Meal": ["Breakfast", "Lunch", "Dinner"],
-        "Calories": [400, 600, 500]
-    })
-    fig = px.bar(chart_data, x="Meal", y="Calories", color="Meal")
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.success("Stay healthy 💚")
-    st.balloons()
-
-    # RESET
-    if st.button("🔄 Try Again", use_container_width=True):
+    if st.button("🔄 Try Again"):
         st.session_state.submitted = False
         st.rerun()
