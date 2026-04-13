@@ -18,13 +18,13 @@ def load_model():
     try:
         with open(MODEL_PATH, "rb") as f:
             return pickle.load(f)
-    except Exception as e:
-        st.error(f"Model error: {e}")
+    except:
         return None
 
 model = load_model()
 
 if model is None:
+    st.error("Model failed to load")
     st.stop()
 
 # ---------- RESET ----------
@@ -34,7 +34,7 @@ if st.sidebar.button("🔄 Reset"):
 
 # ---------- SIDEBAR ----------
 if os.path.exists(IMAGE_PATH):
-    st.sidebar.image(IMAGE_PATH, width=150)
+    st.sidebar.image(IMAGE_PATH, width=140)
 
 st.sidebar.markdown("## 👤 User Profile")
 
@@ -43,7 +43,7 @@ gender = st.sidebar.selectbox("Gender", ["Male", "Female"], key="gender")
 height = st.sidebar.number_input("Height (cm)", 100.0, 250.0, 170.0, key="height")
 weight = st.sidebar.number_input("Weight (kg)", 30.0, 200.0, 65.0, key="weight")
 
-# ---------- BMI ----------
+# BMI
 bmi = weight / ((height / 100) ** 2)
 st.sidebar.markdown(f"### 🧮 BMI: {bmi:.2f}")
 
@@ -59,11 +59,11 @@ goal_map = {"Weight Loss": 0, "Maintain": 1, "Muscle Gain": 2}
 
 # ---------- DIET DATA ----------
 diet_info = {
-    0: {"name": "Low Carb Diet", "color": "#2ecc71"},
-    1: {"name": "Diabetic Diet", "color": "#3498db"},
-    2: {"name": "Heart Healthy Diet", "color": "#e74c3c"},
-    3: {"name": "Balanced Diet", "color": "#f1c40f"},
-    4: {"name": "High Protein Diet", "color": "#9b59b6"}
+    0: {"name": "Low Carb Diet", "color": "#27ae60"},
+    1: {"name": "Diabetic Diet", "color": "#2980b9"},
+    2: {"name": "Heart Healthy Diet", "color": "#c0392b"},
+    3: {"name": "Balanced Diet", "color": "#f39c12"},
+    4: {"name": "High Protein Diet", "color": "#8e44ad"}
 }
 
 diet_plans = {
@@ -74,32 +74,51 @@ diet_plans = {
     "High Protein Diet": ["🧀 Paneer", "🍗 Chicken", "🥤 Protein Shake"]
 }
 
-# ---------- UI STYLE ----------
+# ---------- PREMIUM UI ----------
 st.markdown("""
 <style>
 .stApp {
-    background: linear-gradient(135deg, #eef2f3, #dfe9f3);
+    background: linear-gradient(135deg, #f5f7fa, #e4ecf7);
 }
 
-.title {
+.header {
     text-align: center;
     font-size: 42px;
     font-weight: 800;
+    color: #2c3e50;
+}
+
+.sub {
+    text-align: center;
+    color: #7f8c8d;
+    margin-bottom: 20px;
 }
 
 .card {
     background: white;
     padding: 25px;
-    border-radius: 15px;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     margin-top: 20px;
-    box-shadow: 0px 8px 20px rgba(0,0,0,0.1);
+}
+
+.metric {
+    text-align: center;
+    font-size: 18px;
+    padding: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------- HEADER ----------
-st.markdown("<div class='title'>🥗 Smart Diet AI</div>", unsafe_allow_html=True)
-st.caption("AI-powered personalized nutrition system")
+st.markdown("<div class='header'>🥗 Smart Diet AI</div>", unsafe_allow_html=True)
+st.markdown("<div class='sub'>AI-powered personalized nutrition system</div>", unsafe_allow_html=True)
+
+# ---------- METRICS ----------
+col1, col2, col3 = st.columns(3)
+col1.metric("BMI", f"{bmi:.2f}")
+col2.metric("Sugar", f"{sugar}")
+col3.metric("Cholesterol", f"{cholesterol}")
 
 # ---------- BUTTON ----------
 generate = st.sidebar.button("🚀 Generate Plan")
@@ -114,27 +133,24 @@ if generate:
 
     diet_name = result["name"]
 
-    # ---------- RESULT ----------
+    # ---------- RESULT CARD ----------
     st.markdown(f"""
     <div class="card">
-        <h2 style="color:{result['color']}; text-align:center;">
+        <h2 style="text-align:center; color:{result['color']}">
             🥗 {diet_name}
         </h2>
+        <p style="text-align:center; color:#555;">
+            Personalized recommendation based on your health data
+        </p>
     </div>
     """, unsafe_allow_html=True)
-
-    # ---------- EXPLANATION ----------
-    st.markdown("### 🧠 Why this diet?")
-    st.write(f"Based on your BMI ({bmi:.2f}), activity level ({activity}), and goal ({goal}).")
 
     # ---------- DIET PLAN ----------
     st.markdown("### 🍽 Daily Plan")
 
-    meals = diet_plans[diet_name]
-
     df = pd.DataFrame({
         "Meal": ["Breakfast", "Lunch", "Dinner"],
-        "Food": meals
+        "Food": diet_plans[diet_name]
     })
 
     st.dataframe(df, use_container_width=True)
@@ -148,7 +164,7 @@ if generate:
 
     st.pyplot(fig)
 
-    st.success("Stay healthy! 💚")
+    st.success("Stay healthy 💚")
 
 else:
     st.info("Fill your details and click Generate Plan")
