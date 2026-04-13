@@ -4,13 +4,16 @@ import pickle
 import os
 import time
 
+
+st.set_option('server.fileWatcherType', 'none')
 st.set_page_config(
     page_title="Smart Diet AI",
     page_icon="🥗",
     layout="wide"
 )
 
-MODEL_PATH = "model/model.pkl"
+BASE_DIR = os.path.dirname(__file__)
+MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
 
 @st.cache_resource
 def load_model():
