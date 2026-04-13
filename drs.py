@@ -38,19 +38,79 @@ if os.path.exists(IMAGE_PATH):
 
 st.sidebar.markdown("## 👤 User Profile")
 
-age = st.sidebar.number_input("Age", 10, 100, 22, key="age")
-gender = st.sidebar.selectbox("Gender", ["Male", "Female"], key="gender")
-height = st.sidebar.number_input("Height (cm)", 100.0, 250.0, 170.0, key="height")
-weight = st.sidebar.number_input("Weight (kg)", 30.0, 200.0, 65.0, key="weight")
+# ---------- INPUTS (NO DEFAULT VALUES) ----------
+age = st.sidebar.number_input(
+    "Age",
+    min_value=10,
+    max_value=100,
+    value=None,
+    placeholder="Enter age",
+    key="age"
+)
 
-# BMI
-bmi = weight / ((height / 100) ** 2)
-st.sidebar.markdown(f"### 🧮 BMI: {bmi:.2f}")
+gender = st.sidebar.selectbox(
+    "Gender",
+    ["Select Gender", "Male", "Female"],
+    index=0,
+    key="gender"
+)
 
-activity = st.sidebar.select_slider("Activity Level", ["Low", "Moderate", "High"], key="activity")
-sugar = st.sidebar.number_input("Sugar Level", 50.0, 300.0, 120.0, key="sugar")
-cholesterol = st.sidebar.number_input("Cholesterol", 100.0, 400.0, 200.0, key="cholesterol")
-goal = st.sidebar.selectbox("Primary Goal", ["Weight Loss", "Maintain", "Muscle Gain"], key="goal")
+height = st.sidebar.number_input(
+    "Height (cm)",
+    min_value=100.0,
+    max_value=250.0,
+    value=None,
+    placeholder="Enter height",
+    key="height"
+)
+
+weight = st.sidebar.number_input(
+    "Weight (kg)",
+    min_value=30.0,
+    max_value=200.0,
+    value=None,
+    placeholder="Enter weight",
+    key="weight"
+)
+
+# ---------- BMI SAFE CALC ----------
+if height and weight:
+    bmi = weight / ((height / 100) ** 2)
+    st.sidebar.markdown(f"### 🧮 BMI: {bmi:.2f}")
+else:
+    bmi = 0
+    st.sidebar.markdown("### 🧮 BMI: --")
+
+activity = st.sidebar.select_slider(
+    "Activity Level",
+    ["Low", "Moderate", "High"],
+    key="activity"
+)
+
+sugar = st.sidebar.number_input(
+    "Sugar Level",
+    min_value=50.0,
+    max_value=300.0,
+    value=None,
+    placeholder="Enter sugar level",
+    key="sugar"
+)
+
+cholesterol = st.sidebar.number_input(
+    "Cholesterol",
+    min_value=100.0,
+    max_value=400.0,
+    value=None,
+    placeholder="Enter cholesterol",
+    key="cholesterol"
+)
+
+goal = st.sidebar.selectbox(
+    "Primary Goal",
+    ["Select Goal", "Weight Loss", "Maintain", "Muscle Gain"],
+    index=0,
+    key="goal"
+)
 
 # ---------- MAPPING ----------
 gender_map = {"Male": 0, "Female": 1}
@@ -74,41 +134,29 @@ diet_plans = {
     "High Protein Diet": ["🧀 Paneer", "🍗 Chicken", "🥤 Protein Shake"]
 }
 
-# ---------- PREMIUM UI ----------
+# ---------- UI ----------
 st.markdown("""
 <style>
 .stApp {
     background: linear-gradient(135deg, #f8fafc, #e6ecf5);
 }
-
-/* HEADER */
 .header {
     text-align: center;
     font-size: 42px;
     font-weight: 800;
     color: #2c3e50;
 }
-
 .sub {
     text-align: center;
     color: #7f8c8d;
     margin-bottom: 20px;
 }
-
-/* CARD */
 .card {
     background: white;
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     margin-top: 20px;
-}
-
-/* MOBILE RESPONSIVE */
-@media (max-width: 768px) {
-    .header {
-        font-size: 28px;
-    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -119,14 +167,21 @@ st.markdown("<div class='sub'>AI-powered personalized nutrition system</div>", u
 
 # ---------- METRICS ----------
 col1, col2, col3 = st.columns(3)
-col1.metric("BMI", f"{bmi:.2f}")
-col2.metric("Sugar", f"{sugar}")
-col3.metric("Cholesterol", f"{cholesterol}")
+col1.metric("BMI", f"{bmi:.2f}" if bmi else "--")
+col2.metric("Sugar", f"{sugar}" if sugar else "--")
+col3.metric("Cholesterol", f"{cholesterol}" if cholesterol else "--")
 
 # ---------- BUTTON ----------
 generate = st.sidebar.button("🚀 Generate Plan")
 
 if generate:
+
+    # ---------- VALIDATION ----------
+    if not all([age, height, weight, sugar, cholesterol]) \
+        or gender == "Select Gender" \
+        or goal == "Select Goal":
+        st.warning("⚠️ Please fill all fields correctly")
+        st.stop()
 
     input_data = np.array([[age, gender_map[gender], height, weight, bmi,
                             activity_map[activity], sugar, cholesterol, goal_map[goal]]])
@@ -158,7 +213,7 @@ if generate:
 
     st.dataframe(df, use_container_width=True)
 
-    # ---------- ANIMATED CHART ----------
+    # ---------- CHART ----------
     st.markdown("### 📊 Calories Distribution")
 
     chart_data = pd.DataFrame({
@@ -175,4 +230,4 @@ if generate:
     st.success("Stay healthy 💚")
 
 else:
-    st.info("Fill your details and click Generate Plan")
+    st.info("Fill your details and click Generate Plan 🚀")
