@@ -12,7 +12,7 @@ st.set_page_config(page_title="Smart Diet AI", page_icon="🥗", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
-BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg.jpg")
+BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.jpg")
 
 # ---------- LOAD MODEL ----------
 @st.cache_resource
