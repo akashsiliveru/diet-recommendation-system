@@ -92,7 +92,7 @@ st.markdown("<div class='main-title'>🥗 Smart Diet AI</div>", unsafe_allow_htm
 st.markdown("<div class='sub-text'>Personalized Nutrition Plans using Machine Learning</div>", unsafe_allow_html=True)
 
 # ---------- SIDEBAR ----------
-st.sidebar.image(IMAGE_PATH, width=120)
+st.sidebar.image(IMAGE_PATH, width=90)
 st.sidebar.markdown("### 👤 User Profile")
 
 age = st.sidebar.number_input("Age", 10, 100, 22)
