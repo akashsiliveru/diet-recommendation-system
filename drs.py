@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-MODEL_PATH = "Diet_Recommendation (1).pkl"
+MODEL_PATH = "model/model.pkl"
 
 @st.cache_resource
 def load_model():
