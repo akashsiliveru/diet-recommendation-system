@@ -4,32 +4,31 @@ import pickle
 import os
 import time
 
-
+# ---------- PAGE CONFIG ----------
 st.set_page_config(
     page_title="Smart Diet AI",
     page_icon="🥗",
     layout="wide"
 )
 
+# ---------- PATHS ----------
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
+IMAGE_PATH = os.path.join(BASE_DIR, "assets", "images", "img.png")
 
+# ---------- LOAD MODEL ----------
 @st.cache_resource
 def load_model():
     try:
         with open(MODEL_PATH, "rb") as f:
-            model = pickle.load(f)
-        return model
-    except FileNotFoundError:
-        st.error("Model file not found. Check model path.")
-    except Exception as e:
-        st.error(f"Error loading model: {e}")
-    return None
+            return pickle.load(f)
+    except:
+        return None
 
 model = load_model()
 
 if model is None:
-    st.error("Model file not found. Please keep the .pkl file in the project folder.")
+    st.error("⚠️ Model failed to load. Please try again later.")
     st.stop()
 
 # ---------- UI STYLE ----------
@@ -93,7 +92,8 @@ st.markdown("<div class='main-title'>🥗 Smart Diet AI</div>", unsafe_allow_htm
 st.markdown("<div class='sub-text'>Personalized Nutrition Plans using Machine Learning</div>", unsafe_allow_html=True)
 
 # ---------- SIDEBAR ----------
-st.sidebar.header("User Profile")
+st.sidebar.image(IMAGE_PATH, use_container_width=True)
+st.sidebar.markdown("### 👤 User Profile")
 
 age = st.sidebar.number_input("Age", 10, 100, 22)
 gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
@@ -120,7 +120,7 @@ diet_info = {
 }
 
 # ---------- BUTTON ----------
-if st.sidebar.button("Generate Plan"):
+if st.sidebar.button("🚀 Generate Plan"):
 
     with st.spinner("Analyzing your data..."):
         time.sleep(1)
