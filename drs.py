@@ -27,85 +27,149 @@ if model is None:
     st.error("Model failed to load")
     st.stop()
 
-# ---------- CSS (PREMIUM UI) ----------
+# ---------- SESSION STATE ----------
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
+
+# ---------- CSS ----------
 st.markdown("""
 <style>
 .stApp {
     background: linear-gradient(135deg, #eef2f7, #dfe9f3);
 }
-
 .header {
     text-align:center;
     font-size:42px;
     font-weight:800;
 }
-
-.sub {
-    text-align:center;
-    color:gray;
-    margin-bottom:30px;
-}
-
 .card {
     background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(10px);
     padding:20px;
     border-radius:20px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     margin-bottom:20px;
-}
-
-.metric-card {
-    background: linear-gradient(135deg,#00c6ff,#0072ff);
-    color:white;
-    padding:20px;
-    border-radius:15px;
-    text-align:center;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------- HEADER ----------
 st.markdown("<div class='header'>🥗 Smart Diet AI</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub'>Your Personal AI Nutrition Coach</div>", unsafe_allow_html=True)
 
-# ---------- INPUT SECTION ----------
-with st.container():
+# ---------- INPUT SCREEN ----------
+if not st.session_state.submitted:
+
     st.markdown("### 👤 Enter Your Details")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        age = st.number_input("Age", min_value=10, max_value=100, value=None)
-        gender = st.selectbox("Gender", ["Select", "Male", "Female"])
+        age = st.number_input("Age", min_value=10, max_value=100)
+        st.markdown("Gender")
+        gender = st.radio("", ["Male", "Female"], horizontal=True)
 
     with col2:
-        height = st.number_input("Height (cm)", min_value=100.0, max_value=250.0, value=None)
-        weight = st.number_input("Weight (kg)", min_value=30.0, max_value=200.0, value=None)
+        height = st.number_input("Height (cm)", min_value=100.0, max_value=250.0)
+        weight = st.number_input("Weight (kg)", min_value=30.0, max_value=200.0)
 
     with col3:
-        activity = st.selectbox("Activity", ["Low", "Moderate", "High"])
-        goal = st.selectbox("Goal", ["Select", "Weight Loss", "Maintain", "Muscle Gain"])
+        st.markdown("Activity Level")
+        activity = st.radio("", ["Low", "Moderate", "High"], horizontal=True)
 
-    sugar = st.number_input("Sugar Level", min_value=50.0, max_value=300.0, value=None)
-    cholesterol = st.number_input("Cholesterol", min_value=100.0, max_value=400.0, value=None)
+        st.markdown("Goal")
+        goal = st.radio("", ["Weight Loss", "Maintain", "Muscle Gain"], horizontal=True)
 
-# ---------- BMI ----------
-if height and weight:
+    sugar = st.number_input("Sugar Level", min_value=50.0, max_value=300.0)
+    cholesterol = st.number_input("Cholesterol", min_value=100.0, max_value=400.0)
+
+    if st.button("🚀 Generate Plan"):
+
+        if not all([age, height, weight, sugar, cholesterol]):
+            st.warning("⚠️ Please fill all fields")
+            st.stop()
+
+        st.session_state.submitted = True
+        st.session_state.data = {
+            "age": age,
+            "gender": gender,
+            "height": height,
+            "weight": weight,
+            "activity": activity,
+            "goal": goal,
+            "sugar": sugar,
+            "cholesterol": cholesterol
+        }
+
+        st.rerun()
+
+# ---------- OUTPUT SCREEN ----------
+if st.session_state.submitted:
+
+    data = st.session_state.data
+
+    age = data["age"]
+    gender = data["gender"]
+    height = data["height"]
+    weight = data["weight"]
+    activity = data["activity"]
+    goal = data["goal"]
+    sugar = data["sugar"]
+    cholesterol = data["cholesterol"]
+
+    # BMI
     bmi = weight / ((height / 100) ** 2)
-else:
-    bmi = 0
 
-# ---------- METRICS ----------
-st.markdown("### 📊 Health Overview")
+    # MAPPING
+    gender_map = {"Male": 0, "Female": 1}
+    activity_map = {"Low": 0, "Moderate": 1, "High": 2}
+    goal_map = {"Weight Loss": 0, "Maintain": 1, "Muscle Gain": 2}
 
-c1, c2, c3 = st.columns(3)
-c1.metric("BMI", f"{bmi:.2f}" if bmi else "--")
-c2.metric("Sugar", f"{sugar}" if sugar else "--")
-c3.metric("Cholesterol", f"{cholesterol}" if cholesterol else "--")
+    input_data = np.array([[age, gender_map[gender], height, weight, bmi,
+                            activity_map[activity], sugar, cholesterol, goal_map[goal]]])
 
-# ---------- BMI GAUGE ----------
-if bmi:
+    prediction = model.predict(input_data)[0]
+
+    diet_info = {
+        0: {"name": "Low Carb Diet", "color": "#27ae60"},
+        1: {"name": "Diabetic Diet", "color": "#2980b9"},
+        2: {"name": "Heart Healthy Diet", "color": "#c0392b"},
+        3: {"name": "Balanced Diet", "color": "#f39c12"},
+        4: {"name": "High Protein Diet", "color": "#8e44ad"}
+    }
+
+    diet_plans = {
+        "Low Carb Diet": ["🥚 Eggs", "🍗 Chicken", "🥗 Salad"],
+        "Diabetic Diet": ["🥣 Oats", "🍚 Brown Rice", "🥦 Veggies"],
+        "Heart Healthy Diet": ["🍎 Fruits", "🐟 Fish", "🥜 Nuts"],
+        "Balanced Diet": ["🍚 Rice", "🥘 Dal", "🥦 Curry"],
+        "High Protein Diet": ["🧀 Paneer", "🍗 Chicken", "🥤 Protein Shake"]
+    }
+
+    result = diet_info.get(prediction)
+    diet_name = result["name"]
+
+    # ---------- HEALTH STATUS ----------
+    if bmi < 18.5:
+        status = "Underweight"
+        color = "#3498db"
+    elif bmi < 25:
+        status = "Normal"
+        color = "#2ecc71"
+    elif bmi < 30:
+        status = "Overweight"
+        color = "#f39c12"
+    else:
+        status = "Obese"
+        color = "#e74c3c"
+
+    st.markdown(f"<h2 style='text-align:center;color:{color};'>{status}</h2>", unsafe_allow_html=True)
+
+    # ---------- METRICS ----------
+    c1, c2, c3 = st.columns(3)
+    c1.metric("BMI", f"{bmi:.2f}")
+    c2.metric("Sugar", f"{sugar}")
+    c3.metric("Cholesterol", f"{cholesterol}")
+
+    # ---------- BMI GAUGE ----------
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=bmi,
@@ -122,65 +186,23 @@ if bmi:
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-# ---------- BUTTON ----------
-generate = st.button("🚀 Generate Plan")
-
-# ---------- MAPPING ----------
-gender_map = {"Male": 0, "Female": 1}
-activity_map = {"Low": 0, "Moderate": 1, "High": 2}
-goal_map = {"Weight Loss": 0, "Maintain": 1, "Muscle Gain": 2}
-
-diet_info = {
-    0: {"name": "Low Carb Diet", "color": "#27ae60"},
-    1: {"name": "Diabetic Diet", "color": "#2980b9"},
-    2: {"name": "Heart Healthy Diet", "color": "#c0392b"},
-    3: {"name": "Balanced Diet", "color": "#f39c12"},
-    4: {"name": "High Protein Diet", "color": "#8e44ad"}
-}
-
-diet_plans = {
-    "Low Carb Diet": ["🥚 Eggs", "🍗 Chicken", "🥗 Salad"],
-    "Diabetic Diet": ["🥣 Oats", "🍚 Brown Rice", "🥦 Veggies"],
-    "Heart Healthy Diet": ["🍎 Fruits", "🐟 Fish", "🥜 Nuts"],
-    "Balanced Diet": ["🍚 Rice", "🥘 Dal", "🥦 Curry"],
-    "High Protein Diet": ["🧀 Paneer", "🍗 Chicken", "🥤 Protein Shake"]
-}
-
-# ---------- GENERATE ----------
-if generate:
-
-    if not all([age, height, weight, sugar, cholesterol]) \
-        or gender == "Select" or goal == "Select":
-        st.warning("⚠️ Please fill all fields")
-        st.stop()
-
-    input_data = np.array([[age, gender_map[gender], height, weight, bmi,
-                            activity_map[activity], sugar, cholesterol, goal_map[goal]]])
-
-    prediction = model.predict(input_data)[0]
-    result = diet_info.get(prediction)
-
-    diet_name = result["name"]
-
-    # ---------- RESULT ----------
+    # ---------- RESULT CARD ----------
     st.markdown(f"""
     <div class="card">
-        <h2 style="text-align:center;color:{result['color']}">
-        🥗 {diet_name}
-        </h2>
-        <p style="text-align:center;">
-        Personalized recommendation based on your health data
-        </p>
+        <h2 style="text-align:center;color:{result['color']}">🥗 {diet_name}</h2>
+        <p style="text-align:center;">Personalized diet recommendation</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------- WHY ----------
-    st.markdown("### 🧠 Why this recommendation?")
-    st.info(f"""
-    Your BMI is {bmi:.2f}, sugar level is {sugar},
-    and cholesterol is {cholesterol}.
-    Based on these, this diet is optimal for your goal.
-    """)
+    # ---------- INSIGHTS ----------
+    st.markdown("### 🧠 Smart Insights")
+
+    if bmi > 30:
+        st.warning("High BMI detected. Focus on weight loss.")
+    if sugar > 140:
+        st.warning("High sugar level. Reduce sweets.")
+    if cholesterol > 200:
+        st.warning("High cholesterol. Avoid fried foods.")
 
     # ---------- MEAL PLAN ----------
     st.markdown("### 🍽 Daily Plan")
@@ -207,7 +229,9 @@ if generate:
     st.success("Stay healthy 💚")
     st.balloons()
 
-else:
-    st.info("Fill your details and click Generate Plan 🚀")
+    # ---------- RESET ----------
+    if st.button("🔄 Try Again"):
+        st.session_state.submitted = False
+        st.rerun()
 
 
