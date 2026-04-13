@@ -12,7 +12,7 @@ st.set_page_config(page_title="Smart Diet AI", page_icon="🥗", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
-BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.png")
+BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.jpg")
 
 # ---------- LOAD MODEL ----------
 @st.cache_resource
@@ -31,8 +31,11 @@ if model is None:
 
 # ---------- BACKGROUND IMAGE ----------
 def get_base64_image(image_path):
-    with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
+    try:
+        with open(image_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except:
+        return None
 
 bg_image = get_base64_image(BG_PATH)
 
@@ -40,7 +43,7 @@ bg_image = get_base64_image(BG_PATH)
 st.markdown(f"""
 <style>
 .stApp {{
-    background-image: url("data:image/jpg;base64,{bg_image}");
+    background-image: url("data:image/jpg;base64,{bg_image if bg_image else ''}");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -53,7 +56,8 @@ st.markdown(f"""
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(5px);
     z-index: -1;
 }}
 
@@ -81,6 +85,26 @@ div.row-widget.stRadio > div {{
 .stRadio {{
     margin-bottom: -10px;
 }}
+
+.stButton > button {{
+    background: linear-gradient(135deg, #ff7e00, #ff3c00);
+    color: white;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: bold;
+    border: none;
+    transition: 0.3s;
+}}
+
+.stButton > button:hover {{
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #ff8c1a, #ff4d1a);
+}}
+
+div.stButton {{
+    display: flex;
+    justify-content: center;
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -88,8 +112,32 @@ div.row-widget.stRadio > div {{
 if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
-# ---------- HEADER ----------
-st.markdown("<h1 style='text-align:center;'>🥗 Smart Diet AI</h1>", unsafe_allow_html=True)
+# ---------- PREMIUM HEADER ----------
+st.markdown("""
+<div style="
+text-align:center;
+padding:20px;
+margin-bottom:20px;
+background: rgba(255,255,255,0.05);
+border-radius:20px;
+backdrop-filter: blur(10px);
+box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+">
+<h1 style="
+font-size:48px;
+font-weight:800;
+background: linear-gradient(135deg,#ff7e00,#ff3c00);
+-webkit-background-clip: text;
+color: transparent;
+text-shadow: 0 0 20px rgba(255,120,0,0.6);
+">
+🥗 Smart Diet AI
+</h1>
+<p style="color:#ddd;">
+AI-powered personalized nutrition system
+</p>
+</div>
+""", unsafe_allow_html=True)
 
 # ---------- INPUT SCREEN ----------
 if not st.session_state.submitted:
@@ -100,7 +148,6 @@ if not st.session_state.submitted:
 
     with col1:
         age = st.number_input("Age", min_value=10, max_value=100)
-
         st.markdown("Gender")
         gender = st.radio("", ["Male", "Female"], horizontal=True)
 
@@ -118,7 +165,7 @@ if not st.session_state.submitted:
     sugar = st.number_input("Sugar Level", min_value=50.0, max_value=300.0)
     cholesterol = st.number_input("Cholesterol", min_value=100.0, max_value=400.0)
 
-    if st.button("🚀 Generate Plan"):
+    if st.button("🚀 Generate Plan", use_container_width=True):
 
         if not all([age, height, weight, sugar, cholesterol]):
             st.warning("⚠️ Please fill all fields")
@@ -261,7 +308,6 @@ if st.session_state.submitted:
     st.balloons()
 
     # RESET
-    if st.button("🔄 Try Again"):
+    if st.button("🔄 Try Again", use_container_width=True):
         st.session_state.submitted = False
         st.rerun()
-
