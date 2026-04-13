@@ -12,7 +12,7 @@ st.set_page_config(page_title="Smart Diet AI", page_icon="🥗", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
-BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.jpg")
+BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.png")  # ✅ PNG
 
 # ---------- LOAD MODEL ----------
 @st.cache_resource
@@ -38,62 +38,66 @@ def get_base64_image(path):
         return None
 
 bg_image = get_base64_image(BG_PATH)
+file_ext = BG_PATH.split(".")[-1]
 
-# ---------- CSS ----------
-st.markdown(f"""
+if bg_image:
+    st.markdown(f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/{file_ext};base64,{bg_image}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
+
+    .stApp::before {{
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.55); /* lighter overlay */
+        backdrop-filter: blur(3px);
+        z-index: -1;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+else:
+    st.warning("⚠️ Background image not found")
+
+# ---------- GLOBAL CSS ----------
+st.markdown("""
 <style>
 
-/* BACKGROUND */
-.stApp {{
-    background-image: url("data:image/jpg;base64,{bg_image if bg_image else ''}");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-}}
-
-/* OVERLAY (lighter so bg visible) */
-.stApp::before {{
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: -1;
-}}
-
-/* TEXT */
-h1, h2, h3, h4, h5, h6, p, label {{
+h1, h2, h3, h4, h5, h6, p, label {
     color: white !important;
-}}
+}
 
-/* CARD */
-.card {{
+.card {
     background: rgba(255,255,255,0.08);
     backdrop-filter: blur(12px);
     padding: 20px;
     border-radius: 20px;
     margin-bottom: 20px;
-}}
+}
 
 /* RADIO FIX */
-div[role="radiogroup"] {{
+div[role="radiogroup"] {
     gap: 10px !important;
-}}
+}
 
-div.row-widget.stRadio > div {{
+div.row-widget.stRadio > div {
     flex-direction: row;
     gap: 15px;
-}}
+}
 
-.stRadio {{
+.stRadio {
     margin-bottom: -10px;
-}}
+}
 
-/* BUTTON STYLE */
-.stButton > button {{
+/* BUTTON */
+.stButton > button {
     background: linear-gradient(135deg, #ff7e00, #ff3c00);
     color: white;
     border-radius: 12px;
@@ -101,11 +105,11 @@ div.row-widget.stRadio > div {{
     font-weight: bold;
     border: none;
     width: 250px;
-}}
+}
 
-.stButton > button:hover {{
+.stButton > button:hover {
     transform: scale(1.05);
-}}
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -122,7 +126,7 @@ padding:20px;
 margin-bottom:20px;
 background: rgba(0,0,0,0.3);
 border-radius:20px;
-backdrop-filter: blur(12px);
+backdrop-filter: blur(10px);
 ">
 <h1 style="
 font-size:48px;
@@ -270,3 +274,4 @@ if st.session_state.submitted:
     if st.button("🔄 Try Again"):
         st.session_state.submitted = False
         st.rerun()
+
