@@ -5,12 +5,14 @@ import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import base64
 
 # ---------- CONFIG ----------
 st.set_page_config(page_title="Smart Diet AI", page_icon="🥗", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
+BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg.jpg")
 
 # ---------- LOAD MODEL ----------
 @st.cache_resource
@@ -27,33 +29,67 @@ if model is None:
     st.error("Model failed to load")
     st.stop()
 
-# ---------- SESSION STATE ----------
-if "submitted" not in st.session_state:
-    st.session_state.submitted = False
+# ---------- BACKGROUND IMAGE ----------
+def get_base64_image(image_path):
+    with open(image_path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+bg_image = get_base64_image(BG_PATH)
 
 # ---------- CSS ----------
-st.markdown("""
+st.markdown(f"""
 <style>
-.stApp {
-    background: linear-gradient(135deg, #eef2f7, #dfe9f3);
-}
-.header {
-    text-align:center;
-    font-size:42px;
-    font-weight:800;
-}
-.card {
-    background: rgba(255,255,255,0.7);
-    padding:20px;
-    border-radius:20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    margin-bottom:20px;
-}
+.stApp {{
+    background-image: url("data:image/jpg;base64,{bg_image}");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}}
+
+.stApp::before {{
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: -1;
+}}
+
+h1, h2, h3, h4, h5, h6, p, label {{
+    color: white !important;
+}}
+
+.card {{
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}}
+
+div[role="radiogroup"] {{
+    gap: 10px !important;
+}}
+
+div.row-widget.stRadio > div {{
+    flex-direction: row;
+    gap: 15px;
+}}
+
+.stRadio {{
+    margin-bottom: -10px;
+}}
 </style>
 """, unsafe_allow_html=True)
 
+# ---------- SESSION ----------
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
+
 # ---------- HEADER ----------
-st.markdown("<div class='header'>🥗 Smart Diet AI</div>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;'>🥗 Smart Diet AI</h1>", unsafe_allow_html=True)
 
 # ---------- INPUT SCREEN ----------
 if not st.session_state.submitted:
@@ -64,6 +100,7 @@ if not st.session_state.submitted:
 
     with col1:
         age = st.number_input("Age", min_value=10, max_value=100)
+
         st.markdown("Gender")
         gender = st.radio("", ["Male", "Female"], horizontal=True)
 
@@ -115,10 +152,8 @@ if st.session_state.submitted:
     sugar = data["sugar"]
     cholesterol = data["cholesterol"]
 
-    # BMI
     bmi = weight / ((height / 100) ** 2)
 
-    # MAPPING
     gender_map = {"Male": 0, "Female": 1}
     activity_map = {"Low": 0, "Moderate": 1, "High": 2}
     goal_map = {"Weight Loss": 0, "Maintain": 1, "Muscle Gain": 2}
@@ -147,7 +182,7 @@ if st.session_state.submitted:
     result = diet_info.get(prediction)
     diet_name = result["name"]
 
-    # ---------- HEALTH STATUS ----------
+    # STATUS
     if bmi < 18.5:
         status = "Underweight"
         color = "#3498db"
@@ -163,13 +198,13 @@ if st.session_state.submitted:
 
     st.markdown(f"<h2 style='text-align:center;color:{color};'>{status}</h2>", unsafe_allow_html=True)
 
-    # ---------- METRICS ----------
+    # METRICS
     c1, c2, c3 = st.columns(3)
     c1.metric("BMI", f"{bmi:.2f}")
     c2.metric("Sugar", f"{sugar}")
     c3.metric("Cholesterol", f"{cholesterol}")
 
-    # ---------- BMI GAUGE ----------
+    # GAUGE
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=bmi,
@@ -186,7 +221,7 @@ if st.session_state.submitted:
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-    # ---------- RESULT CARD ----------
+    # RESULT CARD
     st.markdown(f"""
     <div class="card">
         <h2 style="text-align:center;color:{result['color']}">🥗 {diet_name}</h2>
@@ -194,9 +229,8 @@ if st.session_state.submitted:
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------- INSIGHTS ----------
+    # INSIGHTS
     st.markdown("### 🧠 Smart Insights")
-
     if bmi > 30:
         st.warning("High BMI detected. Focus on weight loss.")
     if sugar > 140:
@@ -204,9 +238,8 @@ if st.session_state.submitted:
     if cholesterol > 200:
         st.warning("High cholesterol. Avoid fried foods.")
 
-    # ---------- MEAL PLAN ----------
+    # MEALS
     st.markdown("### 🍽 Daily Plan")
-
     for meal, food in zip(["Breakfast", "Lunch", "Dinner"], diet_plans[diet_name]):
         st.markdown(f"""
         <div class="card">
@@ -215,23 +248,20 @@ if st.session_state.submitted:
         </div>
         """, unsafe_allow_html=True)
 
-    # ---------- CALORIES ----------
+    # CHART
     st.markdown("### 📊 Calories Distribution")
-
     chart_data = pd.DataFrame({
         "Meal": ["Breakfast", "Lunch", "Dinner"],
         "Calories": [400, 600, 500]
     })
-
     fig = px.bar(chart_data, x="Meal", y="Calories", color="Meal")
     st.plotly_chart(fig, use_container_width=True)
 
     st.success("Stay healthy 💚")
     st.balloons()
 
-    # ---------- RESET ----------
+    # RESET
     if st.button("🔄 Try Again"):
         st.session_state.submitted = False
         st.rerun()
-
 
