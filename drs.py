@@ -13,19 +13,18 @@ st.set_page_config(
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
+
 @st.cache_resource
 def load_model():
-    st.write("Checking path:", MODEL_PATH)
-    st.write("Exists:", os.path.exists(MODEL_PATH))
-
     try:
         with open(MODEL_PATH, "rb") as f:
             model = pickle.load(f)
-        st.success("Model loaded successfully")
         return model
+    except FileNotFoundError:
+        st.error("Model file not found. Check model path.")
     except Exception as e:
-        st.error(f"REAL ERROR: {e}")
-        return None
+        st.error(f"Error loading model: {e}")
+    return None
 
 model = load_model()
 
