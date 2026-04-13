@@ -18,13 +18,13 @@ def load_model():
     try:
         with open(MODEL_PATH, "rb") as f:
             return pickle.load(f)
-    except:
+    except Exception as e:
+        st.error(f"Model error: {e}")
         return None
 
 model = load_model()
 
 if model is None:
-    st.error("Model failed to load")
     st.stop()
 
 # ---------- RESET ----------
@@ -102,7 +102,9 @@ st.markdown("<div class='title'>🥗 Smart Diet AI</div>", unsafe_allow_html=Tru
 st.caption("AI-powered personalized nutrition system")
 
 # ---------- BUTTON ----------
-if st.sidebar.button("🚀 Generate Plan"):
+generate = st.sidebar.button("🚀 Generate Plan")
+
+if generate:
 
     input_data = np.array([[age, gender_map[gender], height, weight, bmi,
                             activity_map[activity], sugar, cholesterol, goal_map[goal]]])
@@ -116,7 +118,7 @@ if st.sidebar.button("🚀 Generate Plan"):
     st.markdown(f"""
     <div class="card">
         <h2 style="color:{result['color']}; text-align:center;">
-            Recommended Diet: {diet_name}
+            🥗 {diet_name}
         </h2>
     </div>
     """, unsafe_allow_html=True)
@@ -150,8 +152,3 @@ if st.sidebar.button("🚀 Generate Plan"):
 
 else:
     st.info("Fill your details and click Generate Plan")
-
-    st.balloons()
-
-else:
-    st.info("Fill details and click Generate Plan")
