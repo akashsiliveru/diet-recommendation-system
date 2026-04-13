@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 # ---------- CONFIG ----------
 st.set_page_config(page_title="Smart Diet AI", page_icon="🥗", layout="wide")
@@ -34,7 +34,7 @@ if st.sidebar.button("🔄 Reset"):
 
 # ---------- SIDEBAR ----------
 if os.path.exists(IMAGE_PATH):
-    st.sidebar.image(IMAGE_PATH, width=140)
+    st.sidebar.image(IMAGE_PATH, width=130)
 
 st.sidebar.markdown("## 👤 User Profile")
 
@@ -78,9 +78,10 @@ diet_plans = {
 st.markdown("""
 <style>
 .stApp {
-    background: linear-gradient(135deg, #f5f7fa, #e4ecf7);
+    background: linear-gradient(135deg, #f8fafc, #e6ecf5);
 }
 
+/* HEADER */
 .header {
     text-align: center;
     font-size: 42px;
@@ -94,18 +95,20 @@ st.markdown("""
     margin-bottom: 20px;
 }
 
+/* CARD */
 .card {
     background: white;
-    padding: 25px;
-    border-radius: 18px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     margin-top: 20px;
 }
 
-.metric {
-    text-align: center;
-    font-size: 18px;
-    padding: 10px;
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    .header {
+        font-size: 28px;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -133,19 +136,19 @@ if generate:
 
     diet_name = result["name"]
 
-    # ---------- RESULT CARD ----------
+    # RESULT CARD
     st.markdown(f"""
     <div class="card">
         <h2 style="text-align:center; color:{result['color']}">
             🥗 {diet_name}
         </h2>
-        <p style="text-align:center; color:#555;">
+        <p style="text-align:center;">
             Personalized recommendation based on your health data
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------- DIET PLAN ----------
+    # DIET PLAN
     st.markdown("### 🍽 Daily Plan")
 
     df = pd.DataFrame({
@@ -155,14 +158,19 @@ if generate:
 
     st.dataframe(df, use_container_width=True)
 
-    # ---------- CHART ----------
+    # ---------- ANIMATED CHART ----------
     st.markdown("### 📊 Calories Distribution")
 
-    fig, ax = plt.subplots()
-    ax.bar(["Breakfast", "Lunch", "Dinner"], [400, 600, 500])
-    ax.set_ylabel("Calories")
+    chart_data = pd.DataFrame({
+        "Meal": ["Breakfast", "Lunch", "Dinner"],
+        "Calories": [400, 600, 500]
+    })
 
-    st.pyplot(fig)
+    fig = px.bar(chart_data, x="Meal", y="Calories",
+                 color="Meal",
+                 title="Daily Calories")
+
+    st.plotly_chart(fig, use_container_width=True)
 
     st.success("Stay healthy 💚")
 
