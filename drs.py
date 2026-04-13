@@ -13,7 +13,8 @@ st.set_page_config(
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
-
+st.write("MODEL PATH:", MODEL_PATH)
+st.write("FILES:", os.listdir(os.path.join(BASE_DIR, "model")))
 @st.cache_resource
 def load_model():
     if not os.path.exists(MODEL_PATH):
