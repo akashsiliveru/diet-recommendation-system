@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import base64
 
 # ---------- CONFIG ----------
-st.set_page_config(page_title="pichi Dolly", page_icon="🥗", layout="wide")
+st.set_page_config(page_title="Arogya Plan", page_icon="🥗", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
@@ -136,7 +136,7 @@ background: linear-gradient(135deg,#ff7e00,#ff3c00);
 color: transparent;
 text-shadow: 0 0 20px rgba(255,120,0,0.6);
 ">
-🥗 Picchi Dolly
+🥗 Arogya Plan
 </h1>
 <p style="color:#ccc;">
 AI-powered personalized nutrition system
