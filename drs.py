@@ -136,7 +136,7 @@ background: linear-gradient(135deg,#ff7e00,#ff3c00);
 color: transparent;
 text-shadow: 0 0 20px rgba(255,120,0,0.6);
 ">
-🥗 Smart Diet AI
+🥗 Picchi Dolly
 </h1>
 <p style="color:#ccc;">
 AI-powered personalized nutrition system
