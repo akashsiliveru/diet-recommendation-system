@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import base64
 
 # ---------- CONFIG ----------
-st.set_page_config(page_title="Smart Diet AI", page_icon="🥗", layout="wide")
+st.set_page_config(page_title="pichi Dolly", page_icon="🥗", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
