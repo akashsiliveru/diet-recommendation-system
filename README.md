@@ -15,7 +15,7 @@ The application is designed with a modern UI and provides customized plans for:
 
 Add your deployed app link here:  
 
-👉 `https://your-app-link.streamlit.app`
+👉 `https://diet-recommendation-system-2drzcfznrwqxxtr2ou6vny.streamlit.app/`
 
 ---
 
