@@ -2,8 +2,6 @@ import streamlit as st
 import numpy as np
 import pickle
 import os
-import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import base64
 
@@ -12,7 +10,7 @@ st.set_page_config(page_title="Arogya Plan", page_icon="🥗", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
-BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.png")  # ✅ PNG
+BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.png")
 
 # ---------- LOAD MODEL ----------
 @st.cache_resource
@@ -26,7 +24,7 @@ def load_model():
 model = load_model()
 
 if model is None:
-    st.error("Model failed to load")
+    st.error("❌ Model failed to load")
     st.stop()
 
 # ---------- BACKGROUND ----------
@@ -53,24 +51,18 @@ if bg_image:
     .stApp::before {{
         content: "";
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.55); /* lighter overlay */
+        inset: 0;
+        background: rgba(0,0,0,0.55);
         backdrop-filter: blur(3px);
         z-index: -1;
     }}
     </style>
     """, unsafe_allow_html=True)
-else:
-    st.warning("⚠️ Background image not found")
 
 # ---------- GLOBAL CSS ----------
 st.markdown("""
 <style>
-
-h1, h2, h3, h4, h5, h6, p, label {
+h1,h2,h3,h4,h5,h6,p,label {
     color: white !important;
 }
 
@@ -79,12 +71,8 @@ h1, h2, h3, h4, h5, h6, p, label {
     backdrop-filter: blur(12px);
     padding: 20px;
     border-radius: 20px;
-    margin-bottom: 20px;
-}
-
-/* RADIO FIX */
-div[role="radiogroup"] {
-    gap: 10px !important;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 div.row-widget.stRadio > div {
@@ -92,11 +80,6 @@ div.row-widget.stRadio > div {
     gap: 15px;
 }
 
-.stRadio {
-    margin-bottom: -10px;
-}
-
-/* BUTTON */
 .stButton > button {
     background: linear-gradient(135deg, #ff7e00, #ff3c00);
     color: white;
@@ -105,12 +88,13 @@ div.row-widget.stRadio > div {
     font-weight: bold;
     border: none;
     width: 250px;
+    transition: 0.3s;
 }
 
 .stButton > button:hover {
     transform: scale(1.05);
+    box-shadow: 0 0 18px rgba(255,126,0,0.7);
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -126,21 +110,17 @@ padding:20px;
 margin-bottom:20px;
 background: rgba(0,0,0,0.3);
 border-radius:20px;
-backdrop-filter: blur(10px);
-">
+backdrop-filter: blur(10px);">
 <h1 style="
 font-size:48px;
 font-weight:800;
 background: linear-gradient(135deg,#ff7e00,#ff3c00);
--webkit-background-clip: text;
-color: transparent;
-text-shadow: 0 0 20px rgba(255,120,0,0.6);
-">
+-webkit-background-clip:text;
+color:transparent;
+text-shadow:0 0 20px rgba(255,120,0,0.6);">
 🥗 Arogya Plan
 </h1>
-<p style="color:#ccc;">
-AI-powered personalized nutrition system
-</p>
+<p style="color:#ccc;">AI-powered personalized nutrition system</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -153,30 +133,24 @@ if not st.session_state.submitted:
 
     with col1:
         age = st.number_input("Age", min_value=10, max_value=100)
-        st.markdown("Gender")
-        gender = st.radio("", ["Male", "Female"], horizontal=True)
+        gender = st.radio("Gender", ["Male", "Female"], horizontal=True)
 
     with col2:
         height = st.number_input("Height (cm)", min_value=100.0, max_value=250.0)
         weight = st.number_input("Weight (kg)", min_value=30.0, max_value=200.0)
 
     with col3:
-        st.markdown("Activity Level")
-        activity = st.radio("", ["Low", "Moderate", "High"], horizontal=True)
-
-        st.markdown("Goal")
-        goal = st.radio("", ["Weight Loss", "Maintain", "Muscle Gain"], horizontal=True)
+        activity = st.radio("Activity Level", ["Low", "Moderate", "High"], horizontal=True)
+        goal = st.radio("Goal", ["Weight Loss", "Maintain", "Muscle Gain"], horizontal=True)
 
     sugar = st.number_input("Sugar Level", min_value=50.0, max_value=300.0)
     cholesterol = st.number_input("Cholesterol", min_value=100.0, max_value=400.0)
 
-    # 👉 CENTER BUTTON
     c1, c2, c3 = st.columns([1,2,1])
     with c2:
         generate = st.button("🚀 Generate Plan")
 
     if generate:
-
         if not all([age, height, weight, sugar, cholesterol]):
             st.warning("⚠️ Please fill all fields")
             st.stop()
@@ -192,7 +166,6 @@ if not st.session_state.submitted:
             "sugar": sugar,
             "cholesterol": cholesterol
         }
-
         st.rerun()
 
 # ---------- OUTPUT ----------
@@ -215,17 +188,26 @@ if st.session_state.submitted:
     activity_map = {"Low": 0, "Moderate": 1, "High": 2}
     goal_map = {"Weight Loss": 0, "Maintain": 1, "Muscle Gain": 2}
 
-    input_data = np.array([[age, gender_map[gender], height, weight, bmi,
-                            activity_map[activity], sugar, cholesterol, goal_map[goal]]])
+    input_data = np.array([[
+        age,
+        gender_map[gender],
+        height,
+        weight,
+        bmi,
+        activity_map[activity],
+        sugar,
+        cholesterol,
+        goal_map[goal]
+    ]])
 
     prediction = model.predict(input_data)[0]
 
     diet_info = {
-        0: {"name": "Low Carb Diet", "color": "#27ae60"},
-        1: {"name": "Diabetic Diet", "color": "#2980b9"},
-        2: {"name": "Heart Healthy Diet", "color": "#c0392b"},
-        3: {"name": "Balanced Diet", "color": "#f39c12"},
-        4: {"name": "High Protein Diet", "color": "#8e44ad"}
+        0: {"name": "Low Carb Diet"},
+        1: {"name": "Diabetic Diet"},
+        2: {"name": "Heart Healthy Diet"},
+        3: {"name": "Balanced Diet"},
+        4: {"name": "High Protein Diet"}
     }
 
     diet_plans = {
@@ -236,34 +218,72 @@ if st.session_state.submitted:
         "High Protein Diet": ["🧀 Paneer", "🍗 Chicken", "🥤 Protein Shake"]
     }
 
-    result = diet_info.get(prediction)
+    result = diet_info.get(prediction, {"name": "Balanced Diet"})
     diet_name = result["name"]
 
-    st.markdown(f"<h2 style='text-align:center;color:#ff7e00;'>🥗 {diet_name}</h2>", unsafe_allow_html=True)
+    # ---------- BEAUTIFUL GLOW TITLE ----------
+    st.markdown(f"""
+    <style>
+    .glow-title {{
+        text-align:center;
+        font-size:38px;
+        font-weight:800;
+        padding:18px;
+        border-radius:18px;
+        margin:20px 0;
+        color:#fff;
+        background:linear-gradient(135deg,#ff7e00,#ffb347,#ff7e00);
+        box-shadow:0 0 10px #ff7e00,
+                   0 0 20px #ff9a00,
+                   0 0 40px rgba(255,126,0,0.7);
+        text-shadow:0 0 8px rgba(255,255,255,0.8),
+                    0 0 15px rgba(255,126,0,1);
+        animation:glowPulse 2s infinite alternate;
+    }}
 
+    @keyframes glowPulse {{
+        from {{
+            transform: scale(1);
+        }}
+        to {{
+            transform: scale(1.03);
+        }}
+    }}
+    </style>
+
+    <div class="glow-title">🥗 {diet_name}</div>
+    """, unsafe_allow_html=True)
+
+    # ---------- METRICS ----------
     c1, c2, c3 = st.columns(3)
     c1.metric("BMI", f"{bmi:.2f}")
     c2.metric("Sugar", f"{sugar}")
     c3.metric("Cholesterol", f"{cholesterol}")
 
+    # ---------- BMI CHART ----------
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=bmi,
-        title={'text': "BMI"},
+        title={"text": "BMI"},
         gauge={
-            'axis': {'range': [10, 50]},
-            'steps': [
-                {'range': [10, 18], 'color': "lightblue"},
-                {'range': [18, 25], 'color': "green"},
-                {'range': [25, 30], 'color': "orange"},
-                {'range': [30, 50], 'color': "red"},
+            "axis": {"range": [10, 50]},
+            "steps": [
+                {"range": [10, 18], "color": "lightblue"},
+                {"range": [18, 25], "color": "green"},
+                {"range": [25, 30], "color": "orange"},
+                {"range": [30, 50], "color": "red"},
             ]
         }
     ))
     st.plotly_chart(fig, use_container_width=True)
 
+    # ---------- MEAL PLAN ----------
     st.markdown("### 🍽 Daily Plan")
-    for meal, food in zip(["Breakfast", "Lunch", "Dinner"], diet_plans[diet_name]):
+
+    meals = ["Breakfast", "Lunch", "Dinner"]
+    foods = diet_plans[diet_name]
+
+    for meal, food in zip(meals, foods):
         st.markdown(f"""
         <div class="card">
             <h4>{meal}</h4>
@@ -274,4 +294,3 @@ if st.session_state.submitted:
     if st.button("🔄 Try Again"):
         st.session_state.submitted = False
         st.rerun()
-
