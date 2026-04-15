@@ -314,7 +314,8 @@ margin-top:20px;
 margin-bottom:15px;
 text-shadow:0 0 8px rgba(0,255,136,0.35);
 ">
-🍽 Your Daily Plan
+<span style="color:white;">🍽</span>
+<span style="color:#00ff88;"> Your Daily Plan</span>
 </h2>
 """, unsafe_allow_html=True)
 
