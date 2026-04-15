@@ -155,7 +155,7 @@ font-size:48px;
 font-weight:800;
 color:#3a3a3a;
 margin:0;">
-🟠 Arogya Plan
+🥬 Arogya Plan
 </h1>
 <p style="color:#4a4a4a;font-size:18px;margin-top:8px;">
 AI-powered personalized nutrition system
@@ -331,7 +331,7 @@ text-shadow:0 0 8px rgba(0,255,136,0.35);
         st.markdown(f"""
         <div class="card">
             <div class="meal-head">🥜 Snacks</div>
-            <div class="meal-text">✅ {snack}</div>
+            <div class="meal-text"> {snack}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -339,8 +339,8 @@ text-shadow:0 0 8px rgba(0,255,136,0.35);
         st.markdown(f"""
         <div class="card">
             <div class="meal-head">🥤 Drink</div>
-            <div class="meal-text">✅ {drink}</div>
-        </div>
+            <div class="meal-text"> {drink}</div>
+        </divz
         """, unsafe_allow_html=True)
 
     if st.button("🔄 Try Again"):
