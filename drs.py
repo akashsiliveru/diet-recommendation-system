@@ -63,11 +63,25 @@ html, body, [class*="css"] {
     color: white !important;
 }
 
-/* Labels */
+/* All labels */
 label, .stRadio label, .stSelectbox label, .stNumberInput label {
     color: white !important;
     font-size: 18px !important;
     font-weight: 600 !important;
+}
+
+/* FIX RADIO TEXT */
+div[role="radiogroup"] label {
+    color: white !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+}
+div[role="radiogroup"] p {
+    color: white !important;
+}
+.stRadio label {
+    color: white !important;
 }
 
 /* Header */
@@ -303,9 +317,9 @@ if st.session_state.submitted:
     snack = random.choice(foods["Snacks"][d["diet_pref"]])
     drink = random.choice(foods["Drinks"][d["diet_pref"]])
 
-    c1, c2 = st.columns(2)
+    cc1, cc2 = st.columns(2)
 
-    with c1:
+    with cc1:
         st.markdown(f"""
         <div class="card">
             <div class="meal-head">🥜 Snacks</div>
@@ -313,7 +327,7 @@ if st.session_state.submitted:
         </div>
         """, unsafe_allow_html=True)
 
-    with c2:
+    with cc2:
         st.markdown(f"""
         <div class="card">
             <div class="meal-head">🥤 Drink</div>
