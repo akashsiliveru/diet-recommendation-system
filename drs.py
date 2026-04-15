@@ -297,7 +297,17 @@ if st.session_state.submitted:
         }
     }
 
-    st.markdown("## 🍽 Your Daily Plan")
+    st.markdown("""
+<h2 style="
+color:#00ff88;
+font-weight:800;
+margin-top:20px;
+margin-bottom:15px;
+text-shadow:0 0 8px rgba(0,255,136,0.35);
+">
+🍽 Your Daily Plan
+</h2>
+""", unsafe_allow_html=True)
 
     for meal in ["Breakfast", "Lunch", "Dinner"]:
         options = foods[meal][d["diet_pref"]]
@@ -305,9 +315,9 @@ if st.session_state.submitted:
         <div class="card">
             <div class="meal-head">{meal}</div>
             <div class="meal-text">
-                ✅ {options[0]} <br>
-                ✅ {options[1]} <br>
-                ✅ {options[2]}
+                 {options[0]} <br>
+                 {options[1]} <br>
+                 {options[2]}
             </div>
         </div>
         """, unsafe_allow_html=True)
