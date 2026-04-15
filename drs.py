@@ -7,7 +7,7 @@ import base64
 import random
 
 # ---------- CONFIG ----------
-st.set_page_config(page_title="Arogya Plan", page_icon="🟠", layout="wide")
+st.set_page_config(page_title="Arogya Plan", page_icon="🥬", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
