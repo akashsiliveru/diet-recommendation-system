@@ -166,7 +166,16 @@ AI-powered personalized nutrition system
 # ---------- INPUT ----------
 if not st.session_state.submitted:
 
-    st.markdown("## 👤 Enter Your Details")
+    st.markdown("""
+<h2 style="
+font-weight:800;
+margin-top:10px;
+margin-bottom:15px;
+">
+<span>👤</span>
+<span style="color:white;"> Enter Your Details</span>
+</h2>
+""", unsafe_allow_html=True)
 
     c1, c2, c3 = st.columns(3)
 
