@@ -2,16 +2,17 @@ import streamlit as st
 import numpy as np
 import pickle
 import os
+import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
 import base64
-import random
 
 # ---------- CONFIG ----------
-st.set_page_config(page_title="Arogya Plan", page_icon="🥗", layout="wide")
+st.set_page_config(page_title="Smart Diet AI", page_icon="🥗", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
-BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.png")
+BG_PATH = os.path.join(BASE_DIR, "assets", "images", "bg1.png")  # ✅ PNG
 
 # ---------- LOAD MODEL ----------
 @st.cache_resource
@@ -19,12 +20,13 @@ def load_model():
     try:
         with open(MODEL_PATH, "rb") as f:
             return pickle.load(f)
-    except Exception:
+    except:
         return None
 
 model = load_model()
+
 if model is None:
-    st.error("❌ Model failed to load")
+    st.error("Model failed to load")
     st.stop()
 
 # ---------- BACKGROUND ----------
@@ -32,102 +34,83 @@ def get_base64_image(path):
     try:
         with open(path, "rb") as f:
             return base64.b64encode(f.read()).decode()
-    except Exception:
+    except:
         return None
 
-bg = get_base64_image(BG_PATH)
+bg_image = get_base64_image(BG_PATH)
+file_ext = BG_PATH.split(".")[-1]
 
-if bg:
+if bg_image:
     st.markdown(f"""
     <style>
     .stApp {{
-        background: url("data:image/png;base64,{bg}") no-repeat center center fixed;
+        background-image: url("data:image/{file_ext};base64,{bg_image}");
         background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
     }}
+
     .stApp::before {{
         content: "";
         position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.58);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.55); /* lighter overlay */
         backdrop-filter: blur(3px);
         z-index: -1;
     }}
     </style>
     """, unsafe_allow_html=True)
+else:
+    st.warning("⚠️ Background image not found")
 
 # ---------- GLOBAL CSS ----------
 st.markdown("""
 <style>
-html, body, [class*="css"] {
+
+h1, h2, h3, h4, h5, h6, p, label {
     color: white !important;
 }
 
-/* Header */
-.title-box{
-    text-align:center;
-    padding:20px;
-    border-radius:22px;
-    background:rgba(0,0,0,0.35);
-    margin-bottom:20px;
-    backdrop-filter: blur(10px);
-}
-
-/* Result Title */
-.diet-title{
-    text-align:center;
-    font-size:34px !important;
-    font-weight:800 !important;
-    padding:16px;
-    border-radius:18px;
-    background:linear-gradient(135deg,#ff8c00,#ffa733);
-    color:#ffffff !important;
-    box-shadow:0 0 12px rgba(255,140,0,0.25);
-    margin:15px 0 20px 0;
-}
-
-/* Buttons */
-.stButton > button{
-    width:100%;
-    border:none;
-    border-radius:12px;
-    padding:12px;
-    font-weight:700;
-    background:linear-gradient(135deg,#ff7e00,#ff4d00);
-    color:white !important;
-}
-.stButton > button:hover{
-    transform:scale(1.02);
-}
-
-/* Cards */
-.meal-card{
-    background: rgba(255,255,255,0.14) !important;
-    border: 1px solid rgba(255,255,255,0.22) !important;
-    border-radius: 18px;
-    padding: 22px;
-    margin-bottom: 18px;
+.card {
+    background: rgba(255,255,255,0.08);
     backdrop-filter: blur(12px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
 }
 
-/* Headings */
-.meal-title{
-    font-size: 30px !important;
-    font-weight: 800 !important;
-    color: #FFFFFF !important;
-    margin-bottom: 14px;
+/* RADIO FIX */
+div[role="radiogroup"] {
+    gap: 10px !important;
 }
 
-/* Text */
-.food-text{
-    font-size: 24px !important;
-    font-weight: 700 !important;
-    color: #FFD700 !important;
-    line-height: 2 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    text-shadow: 0 0 8px rgba(255,215,0,0.35);
+div.row-widget.stRadio > div {
+    flex-direction: row;
+    gap: 15px;
 }
+
+.stRadio {
+    margin-bottom: -10px;
+}
+
+/* BUTTON */
+.stButton > button {
+    background: linear-gradient(135deg, #ff7e00, #ff3c00);
+    color: white;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-weight: bold;
+    border: none;
+    width: 250px;
+}
+
+.stButton > button:hover {
+    transform: scale(1.05);
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -137,183 +120,158 @@ if "submitted" not in st.session_state:
 
 # ---------- HEADER ----------
 st.markdown("""
-<div class="title-box">
+<div style="
+text-align:center;
+padding:20px;
+margin-bottom:20px;
+background: rgba(0,0,0,0.3);
+border-radius:20px;
+backdrop-filter: blur(10px);
+">
 <h1 style="
 font-size:48px;
 font-weight:800;
-background:linear-gradient(135deg,#ff7e00,#ff3c00);
--webkit-background-clip:text;
-color:transparent;">
-🥗 Arogya Plan
+background: linear-gradient(135deg,#ff7e00,#ff3c00);
+-webkit-background-clip: text;
+color: transparent;
+text-shadow: 0 0 20px rgba(255,120,0,0.6);
+">
+🥗 Smart Diet AI
 </h1>
-<p style="color:#dddddd;">AI-powered personalized nutrition system</p>
+<p style="color:#ccc;">
+AI-powered personalized nutrition system
+</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ---------- INPUT ----------
 if not st.session_state.submitted:
 
-    st.markdown("## 👤 Enter Your Details")
+    st.markdown("### 👤 Enter Your Details")
 
-    c1, c2, c3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-    with c1:
-        age = st.number_input("Age", 10, 100)
-        gender = st.radio("Gender", ["Male", "Female"], horizontal=True)
-        diet_pref = st.selectbox("Diet Preference", ["Veg", "Non-Veg"])
+    with col1:
+        age = st.number_input("Age", min_value=10, max_value=100)
+        st.markdown("Gender")
+        gender = st.radio("", ["Male", "Female"], horizontal=True)
 
+    with col2:
+        height = st.number_input("Height (cm)", min_value=100.0, max_value=250.0)
+        weight = st.number_input("Weight (kg)", min_value=30.0, max_value=200.0)
+
+    with col3:
+        st.markdown("Activity Level")
+        activity = st.radio("", ["Low", "Moderate", "High"], horizontal=True)
+
+        st.markdown("Goal")
+        goal = st.radio("", ["Weight Loss", "Maintain", "Muscle Gain"], horizontal=True)
+
+    sugar = st.number_input("Sugar Level", min_value=50.0, max_value=300.0)
+    cholesterol = st.number_input("Cholesterol", min_value=100.0, max_value=400.0)
+
+    # 👉 CENTER BUTTON
+    c1, c2, c3 = st.columns([1,2,1])
     with c2:
-        height = st.number_input("Height (cm)", 100.0, 250.0)
-        weight = st.number_input("Weight (kg)", 30.0, 200.0)
-        region = st.selectbox("Food Style", ["South Indian", "North Indian"])
+        generate = st.button("🚀 Generate Plan")
 
-    with c3:
-        activity = st.radio("Activity", ["Low", "Moderate", "High"], horizontal=True)
-        goal = st.radio("Goal", ["Weight Loss", "Maintain", "Muscle Gain"], horizontal=True)
-        budget = st.selectbox("Budget", ["Budget", "Premium"])
+    if generate:
 
-    sugar = st.number_input("Sugar Level", 50.0, 300.0)
-    cholesterol = st.number_input("Cholesterol", 100.0, 400.0)
+        if not all([age, height, weight, sugar, cholesterol]):
+            st.warning("⚠️ Please fill all fields")
+            st.stop()
 
-    if st.button("🚀 Generate Plan"):
         st.session_state.submitted = True
         st.session_state.data = {
             "age": age,
             "gender": gender,
             "height": height,
             "weight": weight,
-            "diet_pref": diet_pref,
-            "region": region,
-            "budget": budget,
             "activity": activity,
             "goal": goal,
             "sugar": sugar,
             "cholesterol": cholesterol
         }
+
         st.rerun()
 
 # ---------- OUTPUT ----------
 if st.session_state.submitted:
 
-    d = st.session_state.data
-    bmi = d["weight"] / ((d["height"] / 100) ** 2)
+    data = st.session_state.data
+
+    age = data["age"]
+    gender = data["gender"]
+    height = data["height"]
+    weight = data["weight"]
+    activity = data["activity"]
+    goal = data["goal"]
+    sugar = data["sugar"]
+    cholesterol = data["cholesterol"]
+
+    bmi = weight / ((height / 100) ** 2)
 
     gender_map = {"Male": 0, "Female": 1}
     activity_map = {"Low": 0, "Moderate": 1, "High": 2}
     goal_map = {"Weight Loss": 0, "Maintain": 1, "Muscle Gain": 2}
 
-    input_data = np.array([[
-        d["age"],
-        gender_map[d["gender"]],
-        d["height"],
-        d["weight"],
-        bmi,
-        activity_map[d["activity"]],
-        d["sugar"],
-        d["cholesterol"],
-        goal_map[d["goal"]]
-    ]])
+    input_data = np.array([[age, gender_map[gender], height, weight, bmi,
+                            activity_map[activity], sugar, cholesterol, goal_map[goal]]])
 
-    pred = model.predict(input_data)[0]
+    prediction = model.predict(input_data)[0]
 
-    diet_names = {
-        0: "Low Carb Diet",
-        1: "Diabetic Diet",
-        2: "Heart Healthy Diet",
-        3: "Balanced Diet",
-        4: "High Protein Diet"
+    diet_info = {
+        0: {"name": "Low Carb Diet", "color": "#27ae60"},
+        1: {"name": "Diabetic Diet", "color": "#2980b9"},
+        2: {"name": "Heart Healthy Diet", "color": "#c0392b"},
+        3: {"name": "Balanced Diet", "color": "#f39c12"},
+        4: {"name": "High Protein Diet", "color": "#8e44ad"}
     }
 
-    diet_name = diet_names.get(pred, "Balanced Diet")
+    diet_plans = {
+        "Low Carb Diet": ["🥚 Eggs", "🍗 Chicken", "🥗 Salad"],
+        "Diabetic Diet": ["🥣 Oats", "🍚 Brown Rice", "🥦 Veggies"],
+        "Heart Healthy Diet": ["🍎 Fruits", "🐟 Fish", "🥜 Nuts"],
+        "Balanced Diet": ["🍚 Rice", "🥘 Dal", "🥦 Curry"],
+        "High Protein Diet": ["🧀 Paneer", "🍗 Chicken", "🥤 Protein Shake"]
+    }
 
-    st.markdown(f'<div class="diet-title">🥗 {diet_name}</div>', unsafe_allow_html=True)
+    result = diet_info.get(prediction)
+    diet_name = result["name"]
 
-    # Metrics
-    m1, m2, m3 = st.columns(3)
-    m1.metric("BMI", f"{bmi:.2f}")
-    m2.metric("Sugar", f'{d["sugar"]:.1f}')
-    m3.metric("Cholesterol", f'{d["cholesterol"]:.1f}')
+    st.markdown(f"<h2 style='text-align:center;color:#ff7e00;'>🥗 {diet_name}</h2>", unsafe_allow_html=True)
 
-    # BMI Gauge
+    c1, c2, c3 = st.columns(3)
+    c1.metric("BMI", f"{bmi:.2f}")
+    c2.metric("Sugar", f"{sugar}")
+    c3.metric("Cholesterol", f"{cholesterol}")
+
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=bmi,
-        title={"text": "BMI"},
+        title={'text': "BMI"},
         gauge={
-            "axis": {"range": [10, 50]},
-            "steps": [
-                {"range": [10, 18], "color": "lightblue"},
-                {"range": [18, 25], "color": "green"},
-                {"range": [25, 30], "color": "orange"},
-                {"range": [30, 50], "color": "red"},
+            'axis': {'range': [10, 50]},
+            'steps': [
+                {'range': [10, 18], 'color': "lightblue"},
+                {'range': [18, 25], 'color': "green"},
+                {'range': [25, 30], 'color': "orange"},
+                {'range': [30, 50], 'color': "red"},
             ]
         }
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-    # FOOD DATA
-    foods = {
-        "Breakfast": {
-            "Veg": ["🥣 Oats", "🥞 Dosa", "🥪 Veg Sandwich", "🍎 Fruits", "🥛 Milk"],
-            "Non-Veg": ["🥚 Eggs", "🍗 Chicken Sandwich", "🍳 Omelette", "🥛 Milk", "🍌 Banana"]
-        },
-        "Lunch": {
-            "Veg": ["🍚 Rice + Dal", "🥗 Salad", "🫓 Roti + Curry", "🥘 Veg Biryani"],
-            "Non-Veg": ["🍗 Chicken Rice", "🐟 Fish Curry", "🍖 Egg Rice", "🍚 Rice + Chicken Curry"]
-        },
-        "Dinner": {
-            "Veg": ["🥣 Soup", "🫓 Roti + Paneer", "🥗 Salad Bowl", "🍲 Khichdi"],
-            "Non-Veg": ["🍗 Grilled Chicken", "🐟 Fish Fry", "🥚 Egg Curry", "🍲 Chicken Soup"]
-        },
-        "Snacks": {
-            "Veg": ["🥜 Nuts", "🍎 Apple", "🍌 Banana", "🥒 Cucumber"],
-            "Non-Veg": ["🥚 Boiled Eggs", "🥜 Nuts", "🍌 Banana"]
-        },
-        "Drinks": {
-            "Veg": ["🥤 Buttermilk", "🍵 Green Tea", "🥛 Milk", "🍋 Lemon Water"],
-            "Non-Veg": ["🥤 Protein Shake", "🍵 Green Tea", "🥛 Milk"]
-        }
-    }
-
-    st.markdown("## 🍽 Your Daily Plan")
-
-    for meal in ["Breakfast", "Lunch", "Dinner"]:
-        options = random.sample(foods[meal][d["diet_pref"]], 3)
-
+    st.markdown("### 🍽 Daily Plan")
+    for meal, food in zip(["Breakfast", "Lunch", "Dinner"], diet_plans[diet_name]):
         st.markdown(f"""
-        <div class="meal-card">
-            <div class="meal-title">🍽 {meal}</div>
-            <div class="food-text">
-                ⭐ {options[0]} <br>
-                ⭐ {options[1]} <br>
-                ⭐ {options[2]}
-            </div>
+        <div class="card">
+            <h4>{meal}</h4>
+            <p>{food}</p>
         </div>
         """, unsafe_allow_html=True)
-
-    snack = random.choice(foods["Snacks"][d["diet_pref"]])
-    drink = random.choice(foods["Drinks"][d["diet_pref"]])
-
-    c1, c2 = st.columns(2)
-
-    with c1:
-        st.markdown(f"""
-        <div class="meal-card">
-            <div class="meal-title">🥜 Snacks</div>
-            <div class="food-text">⭐ {snack}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c2:
-        st.markdown(f"""
-        <div class="meal-card">
-            <div class="meal-title">🥤 Drink</div>
-            <div class="food-text">⭐ {drink}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.info(f"🍴 Selected: {d['diet_pref']} | {d['region']} | {d['budget']}")
 
     if st.button("🔄 Try Again"):
         st.session_state.submitted = False
         st.rerun()
+
