@@ -308,14 +308,12 @@ if st.session_state.submitted:
 
     st.markdown("""
 <h2 style="
-color:#00ff88;
+color:white;
 font-weight:800;
 margin-top:20px;
 margin-bottom:15px;
-text-shadow:0 0 8px rgba(0,255,136,0.35);
 ">
-<span style="color:white;">🍽</span>
-<span style="color:#00ff88;"> Your Daily Plan</span>
+🍽️ Your Daily Plan
 </h2>
 """, unsafe_allow_html=True)
 
