@@ -312,7 +312,30 @@ if st.session_state.submitted:
         </div>
         """, unsafe_allow_html=True)
 
-    # Calories Graph
+   
+    # Snacks + Drinks
+    snack = random.choice(foods["Snacks"][d["diet_pref"]])
+    drink = random.choice(foods["Drinks"][d["diet_pref"]])
+
+    cc1, cc2 = st.columns(2)
+
+    with cc1:
+        st.markdown(f"""
+        <div class="card">
+            <div class="meal-head">🥜 Snacks</div>
+            <div class="meal-text">{snack}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with cc2:
+        st.markdown(f"""
+        <div class="card">
+            <div class="meal-head">🥤 Drink</div>
+            <div class="meal-text">{drink}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+     # Calories Graph
     st.markdown("### 📊 Daily Calories Overview")
 
     calories_data = {
@@ -350,27 +373,6 @@ if st.session_state.submitted:
 
     st.plotly_chart(fig_cal, use_container_width=True)
 
-    # Snacks + Drinks
-    snack = random.choice(foods["Snacks"][d["diet_pref"]])
-    drink = random.choice(foods["Drinks"][d["diet_pref"]])
-
-    cc1, cc2 = st.columns(2)
-
-    with cc1:
-        st.markdown(f"""
-        <div class="card">
-            <div class="meal-head">🥜 Snacks</div>
-            <div class="meal-text">{snack}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with cc2:
-        st.markdown(f"""
-        <div class="card">
-            <div class="meal-head">🥤 Drink</div>
-            <div class="meal-text">{drink}</div>
-        </div>
-        """, unsafe_allow_html=True)
 
     if st.button("🔄 Try Again"):
         st.session_state.submitted = False
