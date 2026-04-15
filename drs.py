@@ -7,7 +7,7 @@ import base64
 import random
 
 # ---------- CONFIG ----------
-st.set_page_config(page_title="Arogya Plan", page_icon="🥬", layout="wide")
+st.set_page_config(page_title="Arogya Plan", page_icon="🍃", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
@@ -19,11 +19,10 @@ def load_model():
     try:
         with open(MODEL_PATH, "rb") as f:
             return pickle.load(f)
-    except:
+    except Exception:
         return None
 
 model = load_model()
-
 if model is None:
     st.error("❌ Model failed to load")
     st.stop()
@@ -33,7 +32,7 @@ def get_base64_image(path):
     try:
         with open(path, "rb") as f:
             return base64.b64encode(f.read()).decode()
-    except:
+    except Exception:
         return None
 
 bg = get_base64_image(BG_PATH)
@@ -45,7 +44,6 @@ if bg:
         background: url("data:image/png;base64,{bg}") no-repeat center center fixed;
         background-size: cover;
     }}
-
     .stApp::before {{
         content:"";
         position:fixed;
@@ -71,7 +69,6 @@ label, .stRadio label, .stSelectbox label, .stNumberInput label {
     font-weight: 600 !important;
 }
 
-/* Radio Fix */
 div[role="radiogroup"] label,
 div[role="radiogroup"] p,
 .stRadio label {
@@ -93,7 +90,7 @@ div[role="radiogroup"] p,
     transform: scale(1.02);
 }
 
-/* Cards */
+/* Meal Cards */
 .card{
     background: rgba(255,255,255,0.08);
     backdrop-filter: blur(12px);
@@ -155,7 +152,7 @@ font-size:48px;
 font-weight:800;
 color:#3a3a3a;
 margin:0;">
-🥬 Arogya Plan
+🍃 Arogya Plan
 </h1>
 <p style="color:#4a4a4a;font-size:18px;margin-top:8px;">
 AI-powered personalized nutrition system
@@ -167,15 +164,10 @@ AI-powered personalized nutrition system
 if not st.session_state.submitted:
 
     st.markdown("""
-<h2 style="
-font-weight:800;
-margin-top:10px;
-margin-bottom:15px;
-">
-<span>👤</span>
-<span style="color:white;"> Enter Your Details</span>
-</h2>
-""", unsafe_allow_html=True)
+    <h2 style="font-weight:800;margin-top:10px;margin-bottom:15px;">
+    <span>👤</span><span style="color:white;"> Enter Your Details</span>
+    </h2>
+    """, unsafe_allow_html=True)
 
     c1, c2, c3 = st.columns(3)
 
@@ -249,12 +241,7 @@ if st.session_state.submitted:
     diet_name = diet_names.get(pred, "Balanced Diet")
 
     st.markdown(f"""
-    <div style="
-    text-align:center;
-    font-size:38px;
-    font-weight:800;
-    color:#ffb347;
-    margin:15px 0;">
+    <div style="text-align:center;font-size:38px;font-weight:800;color:#ffb347;margin:15px 0;">
     🥗 {diet_name}
     </div>
     """, unsafe_allow_html=True)
@@ -265,7 +252,7 @@ if st.session_state.submitted:
     c2.metric("Sugar", f'{d["sugar"]:.1f}')
     c3.metric("Cholesterol", f'{d["cholesterol"]:.1f}')
 
-    # Gauge Chart
+    # BMI Gauge
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=bmi,
@@ -282,10 +269,16 @@ if st.session_state.submitted:
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-    # Meal Data
+    # Daily Plan Heading
+    st.markdown("""
+    <h2 style="color:white;font-weight:800;margin-top:20px;margin-bottom:15px;">
+    🍽️ Your Daily Plan
+    </h2>
+    """, unsafe_allow_html=True)
+
     foods = {
         "Breakfast": {
-            "Veg": ["🥣 Oats", "🥞 Dosa", "🥪 Veg Sandwich"],
+            "Veg": ["🫐 Oats", "🥞 Dosa", "🥪 Veg Sandwich"],
             "Non-Veg": ["🥚 Eggs", "🍗 Chicken Sandwich", "🍳 Omelette"]
         },
         "Lunch": {
@@ -306,30 +299,58 @@ if st.session_state.submitted:
         }
     }
 
-    st.markdown("""
-<h2 style="
-color:white;
-font-weight:800;
-margin-top:20px;
-margin-bottom:15px;
-">
-🍽️ Your Daily Plan
-</h2>
-""", unsafe_allow_html=True)
-
     for meal in ["Breakfast", "Lunch", "Dinner"]:
         options = foods[meal][d["diet_pref"]]
         st.markdown(f"""
         <div class="card">
             <div class="meal-head">{meal}</div>
             <div class="meal-text">
-                 {options[0]} <br>
-                 {options[1]} <br>
-                 {options[2]}
+                {options[0]} <br>
+                {options[1]} <br>
+                {options[2]}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
+    # Calories Graph
+    st.markdown("### 📊 Daily Calories Overview")
+
+    calories_data = {
+        "Breakfast": random.randint(250, 400),
+        "Lunch": random.randint(450, 700),
+        "Dinner": random.randint(350, 600),
+        "Snacks": random.randint(100, 250)
+    }
+
+    fig_cal = go.Figure()
+    fig_cal.add_trace(go.Bar(
+        x=list(calories_data.keys()),
+        y=list(calories_data.values()),
+        text=list(calories_data.values()),
+        textposition="outside",
+        marker=dict(
+            color=["#00ff88", "#ffb347", "#ff7e00", "#66ccff"],
+            line=dict(color="white", width=1)
+        )
+    ))
+
+    fig_cal.update_layout(
+        height=360,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(255,255,255,0.03)",
+        font=dict(color="white", size=14),
+        title=dict(
+            text="Estimated Calories Per Meal",
+            font=dict(size=22, color="white")
+        ),
+        xaxis=dict(title="Meals", showgrid=False),
+        yaxis=dict(title="Calories", gridcolor="rgba(255,255,255,0.08)"),
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
+
+    st.plotly_chart(fig_cal, use_container_width=True)
+
+    # Snacks + Drinks
     snack = random.choice(foods["Snacks"][d["diet_pref"]])
     drink = random.choice(foods["Drinks"][d["diet_pref"]])
 
@@ -339,7 +360,7 @@ margin-bottom:15px;
         st.markdown(f"""
         <div class="card">
             <div class="meal-head">🥜 Snacks</div>
-            <div class="meal-text"> {snack}</div>
+            <div class="meal-text">{snack}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -347,10 +368,10 @@ margin-bottom:15px;
         st.markdown(f"""
         <div class="card">
             <div class="meal-head">🥤 Drink</div>
-            <div class="meal-text"> {drink}</div>
-        </divz
+            <div class="meal-text">{drink}</div>
+        </div>
         """, unsafe_allow_html=True)
 
     if st.button("🔄 Try Again"):
         st.session_state.submitted = False
-        st.rerun() 
+        st.rerun()
