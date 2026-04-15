@@ -336,7 +336,16 @@ if st.session_state.submitted:
         """, unsafe_allow_html=True)
 
      # Calories Graph
-    st.markdown("### 📊 Daily Calories Overview")
+    st.markdown("""
+<h3 style="
+color:#ffb347;
+font-weight:800;
+margin-top:15px;
+margin-bottom:10px;
+">
+📊 Daily Calories Overview
+</h3>
+""", unsafe_allow_html=True)
 
     calories_data = {
         "Breakfast": random.randint(250, 400),
