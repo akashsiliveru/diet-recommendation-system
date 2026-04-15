@@ -19,7 +19,7 @@ def load_model():
     try:
         with open(MODEL_PATH, "rb") as f:
             return pickle.load(f)
-    except:
+    except Exception:
         return None
 
 model = load_model()
@@ -32,10 +32,11 @@ def get_base64_image(path):
     try:
         with open(path, "rb") as f:
             return base64.b64encode(f.read()).decode()
-    except:
+    except Exception:
         return None
 
 bg = get_base64_image(BG_PATH)
+
 if bg:
     st.markdown(f"""
     <style>
@@ -44,43 +45,44 @@ if bg:
         background-size: cover;
     }}
     .stApp::before {{
-        content:"";
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,0.55);
-        backdrop-filter:blur(3px);
-        z-index:-1;
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.58);
+        backdrop-filter: blur(3px);
+        z-index: -1;
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# ---------- CSS ----------
+# ---------- GLOBAL CSS ----------
 st.markdown("""
 <style>
-html, body, [class*="css"]{
-    color:white !important;
+html, body, [class*="css"] {
+    color: white !important;
 }
 
 /* Header */
 .title-box{
     text-align:center;
-    padding:18px;
-    border-radius:20px;
+    padding:20px;
+    border-radius:22px;
     background:rgba(0,0,0,0.35);
     margin-bottom:20px;
+    backdrop-filter: blur(10px);
 }
 
 /* Result Title */
 .diet-title{
     text-align:center;
-    font-size:34px;
-    font-weight:800;
-    padding:14px;
+    font-size:34px !important;
+    font-weight:800 !important;
+    padding:16px;
     border-radius:18px;
     background:linear-gradient(135deg,#ff8c00,#ffa733);
-    box-shadow:0 0 10px rgba(255,140,0,0.25);
+    color:#ffffff !important;
+    box-shadow:0 0 12px rgba(255,140,0,0.25);
     margin:15px 0 20px 0;
-    color:white;
 }
 
 /* Buttons */
@@ -91,7 +93,7 @@ html, body, [class*="css"]{
     padding:12px;
     font-weight:700;
     background:linear-gradient(135deg,#ff7e00,#ff4d00);
-    color:white;
+    color:white !important;
 }
 .stButton > button:hover{
     transform:scale(1.02);
@@ -99,30 +101,32 @@ html, body, [class*="css"]{
 
 /* Cards */
 .meal-card{
-    background:rgba(255,255,255,0.10);
-    border:1px solid rgba(255,255,255,0.15);
-    border-radius:18px;
-    padding:18px;
-    margin-bottom:15px;
-    backdrop-filter:blur(10px);
-    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    background: rgba(255,255,255,0.14) !important;
+    border: 1px solid rgba(255,255,255,0.22) !important;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 18px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
 }
 
-/* Card Headings */
+/* Headings */
 .meal-title{
-    font-size:28px;
-    font-weight:700;
-    color:#ffffff;
-    margin-bottom:12px;
+    font-size: 30px !important;
+    font-weight: 800 !important;
+    color: #FFFFFF !important;
+    margin-bottom: 14px;
 }
 
-/* Card Text */
+/* Text */
 .food-text{
-    font-size:20px;
-    font-weight:600;
-    color:#FFD580;
-    line-height:1.8;
-    text-shadow:0 0 6px rgba(255,165,0,0.25);
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #FFD700 !important;
+    line-height: 2 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: 0 0 8px rgba(255,215,0,0.35);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -142,7 +146,7 @@ background:linear-gradient(135deg,#ff7e00,#ff3c00);
 color:transparent;">
 🥗 Arogya Plan
 </h1>
-<p>AI-powered personalized nutrition system</p>
+<p style="color:#dddddd;">AI-powered personalized nutrition system</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -247,7 +251,7 @@ if st.session_state.submitted:
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-    # ---------- FOOD OPTIONS ----------
+    # FOOD DATA
     foods = {
         "Breakfast": {
             "Veg": ["🥣 Oats", "🥞 Dosa", "🥪 Veg Sandwich", "🍎 Fruits", "🥛 Milk"],
@@ -278,11 +282,11 @@ if st.session_state.submitted:
 
         st.markdown(f"""
         <div class="meal-card">
-            <div class="meal-title">{meal}</div>
+            <div class="meal-title">🍽 {meal}</div>
             <div class="food-text">
-                ✅ {options[0]} <br>
-                ✅ {options[1]} <br>
-                ✅ {options[2]}
+                ⭐ {options[0]} <br>
+                ⭐ {options[1]} <br>
+                ⭐ {options[2]}
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -296,7 +300,7 @@ if st.session_state.submitted:
         st.markdown(f"""
         <div class="meal-card">
             <div class="meal-title">🥜 Snacks</div>
-            <div class="food-text">✅ {snack}</div>
+            <div class="food-text">⭐ {snack}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -304,7 +308,7 @@ if st.session_state.submitted:
         st.markdown(f"""
         <div class="meal-card">
             <div class="meal-title">🥤 Drink</div>
-            <div class="food-text">✅ {drink}</div>
+            <div class="food-text">⭐ {drink}</div>
         </div>
         """, unsafe_allow_html=True)
 
