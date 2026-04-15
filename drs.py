@@ -7,7 +7,7 @@ import base64
 import random
 
 # ---------- CONFIG ----------
-st.set_page_config(page_title="Arogya Plan", page_icon="🥗", layout="wide")
+st.set_page_config(page_title="Arogya Plan", page_icon="🟠", layout="wide")
 
 BASE_DIR = os.path.dirname(__file__)
 MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
@@ -23,6 +23,7 @@ def load_model():
         return None
 
 model = load_model()
+
 if model is None:
     st.error("❌ Model failed to load")
     st.stop()
@@ -63,89 +64,19 @@ html, body, [class*="css"] {
     color: white !important;
 }
 
-/* All labels */
+/* Labels */
 label, .stRadio label, .stSelectbox label, .stNumberInput label {
     color: white !important;
     font-size: 18px !important;
     font-weight: 600 !important;
 }
 
-/* FIX RADIO TEXT */
-div[role="radiogroup"] label {
-    color: white !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    opacity: 1 !important;
-}
-div[role="radiogroup"] p {
-    color: white !important;
-}
+/* Radio Fix */
+div[role="radiogroup"] label,
+div[role="radiogroup"] p,
 .stRadio label {
     color: white !important;
-}
-
-/* Header */
-.header-box{
-    text-align:center;
-    padding:20px;
-    margin-bottom:20px;
-    background:rgba(0,0,0,0.35);
-    border-radius:20px;
-    backdrop-filter: blur(10px);
-}
-
-/* Main Title */
-.main-title{
-    font-size:48px;
-    font-weight:800;
-    background:linear-gradient(135deg,#ff7e00,#ff3c00);
-    -webkit-background-clip:text;
-    color:transparent;
-    text-shadow:0 0 12px rgba(255,120,0,0.35);
-}
-
-/* Result Title */
-.result-title{
-    text-align:center;
-    font-size:38px;
-    font-weight:800;
-    color:#ffb347 !important;
-    margin:15px 0;
-}
-
-/* Section Heading */
-.section-title{
-    font-size:28px;
-    font-weight:700;
-    color:white !important;
-    margin-top:20px;
-    margin-bottom:10px;
-}
-
-/* Cards */
-.card{
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    padding:20px;
-    border-radius:20px;
-    margin-bottom:15px;
-    border:1px solid rgba(255,255,255,0.10);
-}
-
-/* Meal title */
-.meal-head{
-    font-size:24px;
-    font-weight:700;
-    color:white !important;
-    margin-bottom:10px;
-}
-
-/* Meal text */
-.meal-text{
-    font-size:20px;
-    font-weight:600;
-    color:#FFD580 !important;
-    line-height:1.9;
+    opacity: 1 !important;
 }
 
 /* Buttons */
@@ -161,6 +92,49 @@ div[role="radiogroup"] p {
 .stButton > button:hover {
     transform: scale(1.02);
 }
+
+/* Cards */
+.card{
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    padding:20px;
+    border-radius:20px;
+    margin-bottom:15px;
+    border:1px solid rgba(255,255,255,0.10);
+}
+
+.meal-head{
+    font-size:24px;
+    font-weight:700;
+    color:white !important;
+    margin-bottom:10px;
+}
+
+.meal-text{
+    font-size:20px;
+    font-weight:600;
+    color:#FFD580 !important;
+    line-height:1.9;
+}
+
+/* Metrics */
+[data-testid="stMetric"] {
+    background: rgba(255,126,0,0.12);
+    border: 1px solid rgba(255,126,0,0.35);
+    border-radius: 16px;
+    padding: 14px;
+    text-align:center;
+}
+[data-testid="stMetricLabel"] {
+    color: #ffffff !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+}
+[data-testid="stMetricValue"] {
+    color: #ffb347 !important;
+    font-size: 34px !important;
+    font-weight: 800 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -170,16 +144,29 @@ if "submitted" not in st.session_state:
 
 # ---------- HEADER ----------
 st.markdown("""
-<div class="header-box">
-<div class="main-title">🥗 Arogya Plan</div>
-<p style="color:#dddddd;font-size:18px;">AI-powered personalized nutrition system</p>
+<div style="
+text-align:center;
+padding:20px;
+margin-bottom:20px;
+background:#ff7e00;
+border-radius:20px;">
+<h1 style="
+font-size:48px;
+font-weight:800;
+color:#3a3a3a;
+margin:0;">
+🟠 Arogya Plan
+</h1>
+<p style="color:#4a4a4a;font-size:18px;margin-top:8px;">
+AI-powered personalized nutrition system
+</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ---------- INPUT ----------
 if not st.session_state.submitted:
 
-    st.markdown('<div class="section-title">👤 Enter Your Details</div>', unsafe_allow_html=True)
+    st.markdown("## 👤 Enter Your Details")
 
     c1, c2, c3 = st.columns(3)
 
@@ -252,13 +239,24 @@ if st.session_state.submitted:
 
     diet_name = diet_names.get(pred, "Balanced Diet")
 
-    st.markdown(f'<div class="result-title">🥗 {diet_name}</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="
+    text-align:center;
+    font-size:38px;
+    font-weight:800;
+    color:#ffb347;
+    margin:15px 0;">
+    🥗 {diet_name}
+    </div>
+    """, unsafe_allow_html=True)
 
+    # Metrics
     c1, c2, c3 = st.columns(3)
     c1.metric("BMI", f"{bmi:.2f}")
     c2.metric("Sugar", f'{d["sugar"]:.1f}')
     c3.metric("Cholesterol", f'{d["cholesterol"]:.1f}')
 
+    # Gauge Chart
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=bmi,
@@ -275,34 +273,34 @@ if st.session_state.submitted:
     ))
     st.plotly_chart(fig, use_container_width=True)
 
+    # Meal Data
     foods = {
         "Breakfast": {
-            "Veg": ["🥣 Oats", "🥞 Dosa", "🥪 Veg Sandwich", "🍎 Fruits", "🥛 Milk"],
-            "Non-Veg": ["🥚 Eggs", "🍗 Chicken Sandwich", "🍳 Omelette", "🥛 Milk", "🍌 Banana"]
+            "Veg": ["🥣 Oats", "🥞 Dosa", "🥪 Veg Sandwich"],
+            "Non-Veg": ["🥚 Eggs", "🍗 Chicken Sandwich", "🍳 Omelette"]
         },
         "Lunch": {
-            "Veg": ["🍚 Rice + Dal", "🥗 Salad", "🫓 Roti + Curry", "🥘 Veg Biryani"],
-            "Non-Veg": ["🍗 Chicken Rice", "🐟 Fish Curry", "🍖 Egg Rice", "🍚 Rice + Chicken Curry"]
+            "Veg": ["🍚 Rice + Dal", "🥗 Salad", "🫓 Roti + Curry"],
+            "Non-Veg": ["🍗 Chicken Rice", "🐟 Fish Curry", "🍖 Egg Rice"]
         },
         "Dinner": {
-            "Veg": ["🥣 Soup", "🫓 Roti + Paneer", "🥗 Salad Bowl", "🍲 Khichdi"],
-            "Non-Veg": ["🍗 Grilled Chicken", "🐟 Fish Fry", "🥚 Egg Curry", "🍲 Chicken Soup"]
+            "Veg": ["🥣 Soup", "🫓 Roti + Paneer", "🍲 Khichdi"],
+            "Non-Veg": ["🍗 Grilled Chicken", "🐟 Fish Fry", "🥚 Egg Curry"]
         },
         "Snacks": {
-            "Veg": ["🥜 Nuts", "🍎 Apple", "🍌 Banana", "🥒 Cucumber"],
-            "Non-Veg": ["🥚 Boiled Eggs", "🥜 Nuts", "🍌 Banana"]
+            "Veg": ["🥜 Nuts", "🍎 Apple"],
+            "Non-Veg": ["🥚 Boiled Eggs", "🥜 Nuts"]
         },
         "Drinks": {
-            "Veg": ["🥤 Buttermilk", "🍵 Green Tea", "🥛 Milk", "🍋 Lemon Water"],
-            "Non-Veg": ["🥤 Protein Shake", "🍵 Green Tea", "🥛 Milk"]
+            "Veg": ["🥤 Buttermilk", "🍵 Green Tea"],
+            "Non-Veg": ["🥤 Protein Shake", "🥛 Milk"]
         }
     }
 
-    st.markdown('<div class="section-title">🍽 Your Daily Plan</div>', unsafe_allow_html=True)
+    st.markdown("## 🍽 Your Daily Plan")
 
     for meal in ["Breakfast", "Lunch", "Dinner"]:
-        options = random.sample(foods[meal][d["diet_pref"]], 3)
-
+        options = foods[meal][d["diet_pref"]]
         st.markdown(f"""
         <div class="card">
             <div class="meal-head">{meal}</div>
@@ -335,8 +333,6 @@ if st.session_state.submitted:
         </div>
         """, unsafe_allow_html=True)
 
-    st.info(f"🍴 Selected: {d['diet_pref']} | {d['region']} | {d['budget']}")
-
     if st.button("🔄 Try Again"):
         st.session_state.submitted = False
-        st.rerun()
+        st.rerun() 
