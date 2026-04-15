@@ -92,8 +92,8 @@ div.row-widget.stRadio > div {
 }
 
 .stButton > button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 18px rgba(255,126,0,0.7);
+    transform: scale(1.03);
+    box-shadow: 0 0 10px rgba(255,126,0,0.35);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -108,7 +108,7 @@ st.markdown("""
 text-align:center;
 padding:20px;
 margin-bottom:20px;
-background: rgba(0,0,0,0.3);
+background: rgba(0,0,0,0.35);
 border-radius:20px;
 backdrop-filter: blur(10px);">
 <h1 style="
@@ -117,7 +117,7 @@ font-weight:800;
 background: linear-gradient(135deg,#ff7e00,#ff3c00);
 -webkit-background-clip:text;
 color:transparent;
-text-shadow:0 0 20px rgba(255,120,0,0.6);">
+text-shadow:0 0 8px rgba(255,120,0,0.35);">
 🥗 Arogya Plan
 </h1>
 <p style="color:#ccc;">AI-powered personalized nutrition system</p>
@@ -188,17 +188,8 @@ if st.session_state.submitted:
     activity_map = {"Low": 0, "Moderate": 1, "High": 2}
     goal_map = {"Weight Loss": 0, "Maintain": 1, "Muscle Gain": 2}
 
-    input_data = np.array([[
-        age,
-        gender_map[gender],
-        height,
-        weight,
-        bmi,
-        activity_map[activity],
-        sugar,
-        cholesterol,
-        goal_map[goal]
-    ]])
+    input_data = np.array([[age, gender_map[gender], height, weight, bmi,
+                            activity_map[activity], sugar, cholesterol, goal_map[goal]]])
 
     prediction = model.predict(input_data)[0]
 
@@ -221,44 +212,31 @@ if st.session_state.submitted:
     result = diet_info.get(prediction, {"name": "Balanced Diet"})
     diet_name = result["name"]
 
-    # ---------- BEAUTIFUL GLOW TITLE ----------
+    # ---------- SOFT GLOW TITLE ----------
     st.markdown(f"""
     <style>
-    .glow-title {{
+    .diet-title {{
         text-align:center;
-        font-size:38px;
+        font-size:36px;
         font-weight:800;
-        padding:18px;
+        padding:16px;
         border-radius:18px;
         margin:20px 0;
-        color:#fff;
-        background:linear-gradient(135deg,#ff7e00,#ffb347,#ff7e00);
-        box-shadow:0 0 10px #ff7e00,
-                   0 0 20px #ff9a00,
-                   0 0 40px rgba(255,126,0,0.7);
-        text-shadow:0 0 8px rgba(255,255,255,0.8),
-                    0 0 15px rgba(255,126,0,1);
-        animation:glowPulse 2s infinite alternate;
-    }}
-
-    @keyframes glowPulse {{
-        from {{
-            transform: scale(1);
-        }}
-        to {{
-            transform: scale(1.03);
-        }}
+        color:#ffffff;
+        background:linear-gradient(135deg,#ff8c00,#ff9f1a);
+        box-shadow:0 0 12px rgba(255,140,0,0.28);
+        text-shadow:0 0 4px rgba(255,255,255,0.25);
     }}
     </style>
 
-    <div class="glow-title">🥗 {diet_name}</div>
+    <div class="diet-title">🥗 {diet_name}</div>
     """, unsafe_allow_html=True)
 
     # ---------- METRICS ----------
     c1, c2, c3 = st.columns(3)
     c1.metric("BMI", f"{bmi:.2f}")
-    c2.metric("Sugar", f"{sugar}")
-    c3.metric("Cholesterol", f"{cholesterol}")
+    c2.metric("Sugar", f"{sugar:.1f}")
+    c3.metric("Cholesterol", f"{cholesterol:.1f}")
 
     # ---------- BMI CHART ----------
     fig = go.Figure(go.Indicator(
