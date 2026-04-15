@@ -1,43 +1,44 @@
-# 🥗 Smart Diet AI – Diet Recommendation System
+# 🍃 Arogya Plan – AI Diet Recommendation System
 
-A personalized **Diet Recommendation System** built with **Python** and **Streamlit** that helps users generate smart meal plans based on health goals, body metrics, and lifestyle preferences.  
+A modern **AI-powered Diet Recommendation Web App** built using **Python, Streamlit, and Machine Learning** that generates personalized meal plans based on user health metrics, lifestyle, and fitness goals.
 
-The application is designed with a modern UI and provides customized plans for:
-
-- Weight Loss  
-- Weight Gain  
-- Maintenance  
-- Healthy Lifestyle  
+Designed with a premium responsive UI, the app helps users choose healthier food plans instantly with an interactive experience.
 
 ---
 
 ## 🚀 Live Demo
 
-Add your deployed app link here:  
-
-👉 `https://diet-recommendation-system-2drzcfznrwqxxtr2ou6vny.streamlit.app/`
+🔗 **Try the App Here:**  
+👉 https://diet-recommendation-system-2drzcfznrwqxxtr2ou6vny.streamlit.app/
 
 ---
 
-## 📌 Features
+## ✨ Key Features
 
-- ✅ Personalized meal plans based on user inputs  
-- ✅ Smart calorie estimation  
-- ✅ Indian food recommendations  
-- ✅ Quick plan generation with one click  
-- ✅ User-friendly modern UI  
-- ✅ Attractive background design  
+- 🧠 AI-based personalized diet recommendations  
+- 📊 BMI, Sugar & Cholesterol health insights  
+- 🍽️ Smart daily meal plans (Breakfast, Lunch, Dinner, Snacks, Drinks)  
+- 🔥 Daily calories overview graph  
+- 🥗 Veg / Non-Veg meal preferences  
+- 🎯 Goal-based plans (Weight Loss / Maintain / Muscle Gain)  
+- 🏃 Activity-based suggestions  
+- 💰 Budget / Premium food options  
+- 📱 Fully responsive design for desktop & mobile  
+- 🎨 Premium modern UI with custom styling  
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Python**
-- **Streamlit**
-- **Pandas**
-- **NumPy**
-- **Scikit-learn** *(if ML model used)*
-- **HTML/CSS** for custom styling
+| Technology | Purpose |
+|-----------|---------|
+| Python | Core Programming |
+| Streamlit | Web App Framework |
+| Scikit-learn | ML Model |
+| Pandas | Data Handling |
+| NumPy | Numerical Operations |
+| Plotly | Charts & Visualizations |
+| HTML/CSS | Custom UI Styling |
 
 ---
 
@@ -45,8 +46,19 @@ Add your deployed app link here:
 
 ```bash
 diet-recommendation-system/
+│── .streamlit/
+│   └── config.toml
+│
+│── assets/
+│   ├── images/
+│   └── Project Screenshots/
+│
+│── model/
+│   └── model.pkl
+│
 │── drs.py
 │── requirements.txt
-│── bg1.png
-│── dataset.csv
 │── README.md
+│── .gitignore
+│── Data Cleaning + EDA (1).ipynb
+│── Diet Recommendation Using KNN Algorithm.ipynb
