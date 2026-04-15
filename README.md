@@ -256,7 +256,7 @@ Open `http://localhost:8501` in your browser.
 
 *If this project helped you, consider giving it a ⭐*
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/diet-recommendation-system?style=social)](.)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/diet-recommendation-system?style=social)](.)
+[![GitHub stars](https://img.shields.io/github/stars/akashsiliveru/diet-recommendation-system?style=social)](https://github.com/akashsiliveru/diet-recommendation-system)
+[![GitHub forks](https://img.shields.io/github/forks/akashsiliveru/diet-recommendation-system?style=social)](https://github.com/akashsiliveru/diet-recommendation-system/network/members)
 
 </div>
