@@ -21,13 +21,13 @@
 
 <br/>
 
-[🚀 Live Demo](#-live-demo) · [📌 Problem](#-problem-statement) · [🧠 ML Workflow](#-ml-workflow) · [📈 Evaluation](#-model-evaluation) · [📊 Features](#-input-features) · [🍽️ Diet Plans](#%EF%B8%8F-predicted-diet-classes) · [🧩 Challenges](#-challenges-solved) · [⚙️ Setup](#-getting-started) · [👨‍💻 Author](#-author)
+[Live Demo](#live-demo) · [Problem](#problem-statement) · [ML Workflow](#ml-workflow) · [Evaluation](#model-evaluation) · [Features](#input-features) · [Diet Plans](#predicted-diet-classes) · [Challenges](#challenges-solved) · [Setup](#installation-guide) · [Author](#author)
 
 </div>
 
 ---
 
-## 🚀 Live Demo
+##  Live Demo
 
 <div align="center">
 
@@ -39,7 +39,7 @@
 
 ---
 
-## 📌 Problem Statement
+##  Problem Statement
 
 Most diet plans fail because they are **generic** — designed for the average person, not for *you*.
 
@@ -54,7 +54,7 @@ Two people with the same weight-loss goal can need completely different nutritio
 
 ---
 
-## 🧠 ML Workflow
+##  ML Workflow
 
 ```
 User Health Input
@@ -75,7 +75,7 @@ User Health Input
 └──────────────────────────┘
        │
        ▼
-  Personalized Result ✅
+  Personalized Result 
 ```
 
 ### Why KNN?
@@ -94,7 +94,7 @@ User Health Input
 
 ---
 
-## 📊 Input Features
+##  Input Features
 
 | # | Feature | Type | Description |
 |---|---|---|---|
@@ -110,31 +110,31 @@ User Health Input
 
 ---
 
-## 🍽️ Predicted Diet Classes
+##  Predicted Diet Classes
 
 The trained KNN model predicts one of five categories:
 
 | Class | Diet Plan | Recommended For |
 |---|---|---|
-| 0 | 🥩 Low Carb Diet | Active users targeting fat loss |
-| 1 | 🩺 Diabetic Diet | High sugar levels or diabetic profiles |
-| 2 | ❤️ Heart Healthy Diet | Elevated cholesterol, cardiovascular focus |
-| 3 | ⚖️ Balanced Diet | General maintenance and healthy living |
-| 4 | 💪 High Protein Diet | Muscle gain and strength goals |
+| 0 |  Low Carb Diet | Active users targeting fat loss |
+| 1 |  Diabetic Diet | High sugar levels or diabetic profiles |
+| 2 |  Heart Healthy Diet | Elevated cholesterol, cardiovascular focus |
+| 3 |  Balanced Diet | General maintenance and healthy living |
+| 4 |  High Protein Diet | Muscle gain and strength goals |
 
 **Sample meal output:**
 
 ```
 Diet Predicted: High Protein Diet
 ──────────────────────────────────
-🥣 Breakfast  │  Paneer scramble
-🍛 Lunch      │  Grilled chicken + rice
-🍲 Dinner     │  Protein shake + salad
+ Breakfast  │  Paneer scramble
+ Lunch      │  Grilled chicken + rice
+ Dinner     │  Protein shake + salad
 ```
 
 ---
 
-## 📈 Model Evaluation
+##  Model Evaluation
 
 The project explored **5 pipeline variants** across forward/backward sequential feature selection, RFECV, SMOTE, SMOTEENN, and GridSearchCV tuning before landing on the final model. All evaluation used stratified 75/25 train/test splits with StratifiedKFold cross-validation to handle class imbalance (the Diabetic class dominated the 1,000-row dataset). Each pipeline was assessed on both **accuracy** and **macro F1** so minority diet classes weren't masked by the majority class.
 
@@ -145,7 +145,7 @@ The project explored **5 pipeline variants** across forward/backward sequential 
 | 1 | Baseline KNN (RFECV + SMOTE) | 73.2% |
 | 2 | Forward Feature Selection + SMOTE | 88.0% |
 | 3 | Forward Feature Selection + GridSearchCV | 86.4% |
-| 4 | **Backward Feature Selection + GridSearchCV** ✅ | **90.8%** |
+| 4 | **Backward Feature Selection + GridSearchCV**  | **90.8%** |
 | 5 | Correlation-filtered (top 5) + GridSearchCV | 87.2% |
 
 ### Final Model — Best Configuration
@@ -197,7 +197,7 @@ Correlation analysis in the EDA notebook showed that Age, Gender, Height, and We
 
 ---
 
-## 🖥️ App Features
+##  App Features
 
 Built with Streamlit, the app delivers a polished, responsive experience:
 
@@ -210,7 +210,7 @@ Built with Streamlit, the app delivers a polished, responsive experience:
 
 ---
 
-## 🧩 Challenges Solved
+##  Challenges Solved
 
 Building a working ML pipeline for a recommendation problem came with several real engineering obstacles:
 
@@ -226,7 +226,7 @@ Building a working ML pipeline for a recommendation problem came with several re
 
 ---
 
-## ⚙️ Getting Started
+## Installation Guide
 
 **Prerequisites:** Python 3.10+, pip
 
@@ -247,33 +247,44 @@ Open `http://localhost:8501` in your browser.
 > **Note:** The trained model file must be present at `model/model.pkl`. Run the KNN notebook first if you need to regenerate it.
 
 ---
-
 ## 📂 Project Structure
 
-```
+```text
 diet-recommendation-system/
 │
-├── 📁 .streamlit/
-│   └── config.toml              # Streamlit theme config
+├──  .streamlit/
+│   └── config.toml                    # Streamlit configuration
 │
-├── 📁 assets/
-│   └── images/
-│       └── bg1.png              # Background image for the UI
+├──  Source/
+│   └── diet_recommendation_dataset_1000.xls   # Dataset file
 │
-├── 📁 model/
-│   └── model.pkl                # Trained KNN model (pickle)
+├──  assets/
+│   ├──  Project Screenshots/
+│   │   ├── desktop view.png
+│   │   ├── desktop-results 1.png
+│   │   ├── desktop-results 2.png
+│   │   ├── mobile view.jpeg
+│   │   ├── mobile-results 1.jpeg
+│   │   └── mobile-results 2.jpeg
+│   │
+│   └──  images/
+│       └── bg1.png                    # Background UI image
 │
-├── 📓 Data Cleaning + EDA.ipynb          # EDA & preprocessing notebook
-├── 📓 Diet Recommendation Using KNN Algorithm.ipynb  # Model training notebook
+├──  model/
+│   └── model.pkl                      # Trained KNN model
 │
-├── 🐍 drs.py                    # Main Streamlit application
-├── 📋 requirements.txt          # Python dependencies
-└── 📄 README.md
-```
+├──  Data Cleaning + EDA.ipynb
+├──  Diet Recommendation Using KNN Algorithm.ipynb
+│
+├──  drs.py
+├──  requirements.txt
+├──  README.md
+└──  .gitignore
 
+```
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -286,7 +297,7 @@ diet-recommendation-system/
 | Model Storage | Pickle (.pkl) |
 
 
-## 👨‍💻 Author
+##  Author
 
 <div align="center">
 
